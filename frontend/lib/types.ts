@@ -17,3 +17,14 @@ export interface CropPoint {
   item: string;
   value: number;
 }
+
+export interface Co2Point {
+  country: string;
+  year: number;
+  co_emissions_per_capita: number;
+}
+
+export interface PredictionPoint {
+  scenario: number;
+  predicted_yield: number;
+}

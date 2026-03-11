@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-const links = ['Home', 'Dashboard', 'Climate Data', 'Food Supply', 'AI Predictions'];
+const links = [
+  { label: 'Home', href: '#home' },
+  { label: 'Dashboard', href: '#dashboard' },
+  { label: 'Data', href: '#data-insights' }
+];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -16,16 +20,16 @@ export default function Navbar() {
   return (
     <header
       className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-        scrolled ? 'bg-slate-950/95 backdrop-blur border-b border-slate-800' : 'bg-transparent'
+        scrolled ? 'border-b border-slate-800 bg-slate-950/95 backdrop-blur' : 'bg-transparent'
       }`}
     >
       <nav className="section-container flex items-center justify-between py-4">
         <span className="text-lg font-semibold">ClimateFood Intelligence</span>
-        <ul className="hidden md:flex gap-6 text-sm text-slate-300">
+        <ul className="hidden gap-6 text-sm text-slate-300 md:flex">
           {links.map((link) => (
-            <li key={link}>
-              <a href={`#${link.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-emerald-400 transition-colors">
-                {link}
+            <li key={link.href}>
+              <a href={link.href} className="transition-colors hover:text-emerald-400">
+                {link.label}
               </a>
             </li>
           ))}

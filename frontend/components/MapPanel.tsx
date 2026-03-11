@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const points = [
@@ -10,13 +10,13 @@ const points = [
 
 export default function MapPanel() {
   return (
-    <div className="mt-8 rounded-2xl overflow-hidden border border-slate-800">
+    <div className="mt-8 overflow-hidden rounded-2xl border border-slate-800">
       <MapContainer center={[10, 20]} zoom={2} style={{ height: '420px', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {points.map((p) => (
-          <Marker position={[p.lat, p.lng]} key={p.label}>
+          <CircleMarker center={[p.lat, p.lng]} radius={8} pathOptions={{ color: '#10b981', fillColor: '#10b981' }} key={p.label}>
             <Popup>{p.label}</Popup>
-          </Marker>
+          </CircleMarker>
         ))}
       </MapContainer>
     </div>

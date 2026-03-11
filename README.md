@@ -119,6 +119,36 @@ You should create **two Railway services** from this same repo:
 - Test backend endpoint directly:
   - `https://<backend-url>/api/climate`
 
+### D) Deploy with Railway CLI (automated)
+
+If you prefer CLI deployment, this repo includes scripts for Linux/macOS and Windows:
+
+1. Install Railway CLI:
+   - `npm i -g @railway/cli`
+2. Create a Railway token in **Account Settings**.
+3. Export/set `RAILWAY_TOKEN`.
+4. Ensure your Railway project already has two services named `backend` and `frontend` (or pass custom names).
+
+Linux/macOS:
+
+```bash
+export RAILWAY_TOKEN=<your-token>
+./scripts/railway-deploy.sh
+
+# Optional overrides:
+# BACKEND_SERVICE_NAME=my-backend FRONTEND_SERVICE_NAME=my-frontend BACKEND_PUBLIC_DOMAIN=https://my-backend.up.railway.app ./scripts/railway-deploy.sh
+```
+
+Windows PowerShell:
+
+```powershell
+$env:RAILWAY_TOKEN = "<your-token>"
+.\scripts\railway-deploy.ps1 -BackendPublicDomain "https://<your-backend-url>"
+
+# Optional overrides:
+# .\scripts\railway-deploy.ps1 -BackendServiceName "my-backend" -FrontendServiceName "my-frontend" -BackendPublicDomain "https://my-backend.up.railway.app"
+```
+
 ---
 
 ## Figma + Animation Workflow (What to connect where)
@@ -136,6 +166,14 @@ Why:
 3. Share those extracted specs with Codex.
 4. Ask Codex to implement/update specific components (hero, cards, navbar, animation timings).
 5. Validate visually in `npm run dev`.
+
+### Figma-to-code setup checklist
+
+1. In Figma, define reusable styles/variables for colors, spacing, typography, and radius.
+2. In this repo, map those values to Tailwind tokens in `frontend/tailwind.config.ts`.
+3. Keep component names aligned between Figma frames and React files (for example: `Hero`, `Navbar`, `ChartsPanel`).
+4. Export assets (SVG/PNG) into `frontend/public/` and reference them in components instead of hotlinking.
+5. Iterate with side-by-side comparison: Figma + `http://localhost:3000`.
 
 > A starter Figma brief is included in `design/homepage-figma-brief.md`.
 
