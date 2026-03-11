@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+}
+
+.light body {
+  @apply bg-slate-50 text-slate-900;
+}
+
+.gradient body {
+  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 50%, #22c55e 100%);
+}
+
+.section-container {
+  @apply mx-auto w-full max-w-7xl px-6 py-20 lg:px-10;
+}
