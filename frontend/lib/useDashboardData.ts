@@ -11,6 +11,13 @@ interface DashboardData {
   predictions: PredictionPoint[];
 }
 
+interface ProxyPayload {
+  data?: unknown[];
+  error?: string;
+}
+
+const ENDPOINTS = ['climate', 'air-quality', 'crops', 'co2', 'predict'] as const;
+
 export function useDashboardData() {
   const [data, setData] = useState<DashboardData>({
     climate: [],
@@ -25,38 +32,29 @@ export function useDashboardData() {
   useEffect(() => {
     let mounted = true;
 
+    const fetchEndpoint = async (endpoint: (typeof ENDPOINTS)[number]) => {
+      const response = await fetch(`/api/data/${endpoint}`);
+      const payload = (await response.json()) as ProxyPayload;
+      if (!response.ok) {
+        throw new Error(payload.error || `HTTP ${response.status}`);
+      }
+      return payload;
+    };
+
     const load = async () => {
       setLoading(true);
       setError('');
-
-      if (!normalizedBackendUrl) {
-        setError('Missing frontend env: NEXT_PUBLIC_BACKEND_URL (or NEXT_PUBLIC_API_URL). Add it and redeploy frontend.');
-        setLoading(false);
-        return;
-      }
-
-      const endpoints = ['climate', 'air-quality', 'crops', 'co2', 'predict'];
-      const results = await Promise.allSettled(
-        endpoints.map(async (endpoint) => {
-          const response = await fetch(`/api/data/${endpoint}`);
-          const payload = await response.json();
-          if (!response.ok) {
-            throw new Error(payload?.error || `HTTP ${response.status}`);
-          }
-          return payload;
-        })
-      );
-
+      const results = await Promise.allSettled(ENDPOINTS.map((endpoint) => fetchEndpoint(endpoint)));
       const unpack = (index: number) => (results[index].status === 'fulfilled' ? results[index].value?.data ?? [] : []);
 
       if (!mounted) return;
 
       setData({
-        climate: unpack(0),
-        airQuality: unpack(1),
-        crops: unpack(2),
-        co2: unpack(3),
-        predictions: unpack(4)
+        climate: unpack(0) as ClimatePoint[],
+        airQuality: unpack(1) as AirQualityPoint[],
+        crops: unpack(2) as CropPoint[],
+        co2: unpack(3) as Co2Point[],
+        predictions: unpack(4) as PredictionPoint[]
       });
 
       if (results.every((entry) => entry.status === 'rejected')) {

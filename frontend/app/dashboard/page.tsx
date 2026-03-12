@@ -39,10 +39,13 @@ export default function DashboardPage() {
           <p className="font-semibold">Deployment variables to set exactly:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>Frontend: <code>NEXT_PUBLIC_BACKEND_URL=https://climatefood-backend.up.railway.app</code> (then redeploy frontend)</li>
-            <li>Backend: remove custom <code>PORT</code> variable from Railway (let Railway inject it automatically), then redeploy backend</li>
-            <li>Backend optional: <code>NASA_POWER_API_KEY=Hmxo5MANRISwVLcyWR0eeFi08QOUaAiZuA0N8oB3</code></li>
-            <li>Backend optional: <code>FAOSTAT_CSV_PATH=/app/data/faostat_data.csv</code></li>
-            <li>CO2 CSV source is in code: <code>https://ourworldindata.org/grapher/co-emissions-per-capita.csv?v=1&csvType=full&useColumnShortNames=true</code></li>
+            <li>Backend: <code>OPENAQ_API_KEY=your_openaq_key</code> (required for air quality)</li>
+            <li>Backend: <code>METEOSTAT_API_KEY=your_rapidapi_key</code> and <code>METEOSTAT_HOST=meteostat.p.rapidapi.com</code> (required for climate)</li>
+            <li>Backend: <code>CO2_JSON_URL=https://owid-public.owid.io/data/co2/owid-co2-data.json</code></li>
+            <li>Backend: <code>CROPS_JSON_URL=https://api.worldbank.org/v2/country/ZAF/indicator/AG.YLD.CREL.KG?format=json&per_page=20000</code></li>
+            <li>Backend optional: <code>CO2_COUNTRIES=Germany,South Africa,Kenya,India</code></li>
+            <li>Backend optional: <code>CROPS_COUNTRY=ZAF</code> and <code>CROPS_INDICATOR=AG.YLD.CREL.KG</code></li>
+            <li>Backend optional location: <code>OPENAQ_LAT</code>/<code>OPENAQ_LON</code> and <code>METEOSTAT_LAT</code>/<code>METEOSTAT_LON</code></li>
           </ul>
         </div>
       )}
