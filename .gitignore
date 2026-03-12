@@ -1,1 +1,29 @@
 aish
+
+# Node and package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# Next.js build output
+.next/
+out/
+
+# Build artifacts
+dist/
+*.tsbuildinfo
+
+# Environment files (keep example)
+.env
+.env.*
+!.env.example
+
+# Python virtual env
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db

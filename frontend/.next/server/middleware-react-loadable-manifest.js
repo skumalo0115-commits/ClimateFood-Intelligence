@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST="{\"app\\\\page.tsx -> @/components/MapPanel\":{\"id\":\"app\\\\page.tsx -> @/components/MapPanel\",\"files\":[\"static/css/_app-pages-browser_components_MapPanel_tsx.css\",\"static/chunks/_app-pages-browser_components_MapPanel_tsx.js\"]}}"
