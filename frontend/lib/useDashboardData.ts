@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 
-const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
+const rawBackendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+
 const normalizedBackendUrl = rawBackendUrl
-  ? `${rawBackendUrl.startsWith('http://') || rawBackendUrl.startsWith('https://') ? rawBackendUrl : `https://${rawBackendUrl}`}`.replace(
-      /\/$/,
-      ''
-    )
+  ? `${rawBackendUrl.startsWith('http://') || rawBackendUrl.startsWith('https://') ? rawBackendUrl : `https://${rawBackendUrl}`}`
+      .replace(/\/$/, '')
+      .replace(/\/api$/, '')
   : '';
 
 interface DashboardData {
@@ -38,7 +39,7 @@ export function useDashboardData() {
       setError('');
 
       if (!normalizedBackendUrl) {
-        setError('Missing NEXT_PUBLIC_BACKEND_URL. Add it in your deployment environment and redeploy.');
+        setError('Missing frontend env: NEXT_PUBLIC_BACKEND_URL (or NEXT_PUBLIC_API_URL). Add it and redeploy frontend.');
         setLoading(false);
         return;
       }
@@ -67,7 +68,7 @@ export function useDashboardData() {
       });
 
       if (results.every((entry) => entry.status === 'rejected')) {
-        setError(`Unable to connect to backend API at ${normalizedBackendUrl}. Verify API deployment and CORS settings.`);
+        setError(`Unable to connect to backend API at ${normalizedBackendUrl}/api. Check backend deployment status and URL variables.`);
       }
 
       setLoading(false);

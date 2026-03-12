@@ -131,3 +131,51 @@ h4 {
     transform: translateY(-16px);
   }
 }
+
+.nav-pill {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-pill::before,
+.magnetic-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.2), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.nav-pill:hover::before,
+.magnetic-card:hover::before {
+  opacity: 1;
+}
+
+html.dark body {
+  background: radial-gradient(circle at top, #020617 0%, #0b1220 40%, #020617 100%);
+  color: #e2e8f0;
+}
+
+html.dark .hero-sheen {
+  opacity: 0.35;
+}
+
+html.dark .network-lines {
+  opacity: 0.3;
+}
+
+html.dark .network-nodes {
+  opacity: 0.45;
+}
+
+html.dark .glow-card {
+  border-color: rgba(51, 65, 85, 0.85);
+  background: rgba(2, 6, 23, 0.86);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+html.dark .glow-card::before {
+  background: radial-gradient(circle at top, rgba(16, 185, 129, 0.24), transparent 60%);
+}
