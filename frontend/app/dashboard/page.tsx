@@ -56,10 +56,10 @@ export default function DashboardPage() {
             viewport={{ once: false, amount: 0.3 }}
             transition={{ delay: index * 0.08 }}
             whileHover={{ y: -6 }}
-            className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm"
+            className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/85"
           >
-            <p className="text-2xl font-semibold text-slate-900">{stat.value}</p>
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">{stat.label}</p>
+            <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{stat.value}</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">{stat.label}</p>
           </motion.div>
         ))}
       </div>

@@ -29,6 +29,12 @@ export function useDashboardData() {
       setLoading(true);
       setError('');
 
+      if (!normalizedBackendUrl) {
+        setError('Missing frontend env: NEXT_PUBLIC_BACKEND_URL (or NEXT_PUBLIC_API_URL). Add it and redeploy frontend.');
+        setLoading(false);
+        return;
+      }
+
       const endpoints = ['climate', 'air-quality', 'crops', 'co2', 'predict'];
       const results = await Promise.allSettled(
         endpoints.map(async (endpoint) => {
