@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 const items = [
+  { label: 'Home', href: '/' },
   { label: 'Overview', href: '/dashboard' },
   { label: 'Climate', href: '/climate' },
   { label: 'Air Quality', href: '/air-quality' },
