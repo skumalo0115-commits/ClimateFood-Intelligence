@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
 
 interface DashboardData {
   climate: ClimatePoint[];
