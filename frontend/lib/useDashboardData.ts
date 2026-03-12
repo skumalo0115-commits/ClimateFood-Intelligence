@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
+const rawBackendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+
+const normalizedBackendUrl = rawBackendUrl
+  ? `${rawBackendUrl.startsWith('http://') || rawBackendUrl.startsWith('https://') ? rawBackendUrl : `https://${rawBackendUrl}`}`
+      .replace(/\/$/, '')
+      .replace(/\/api$/, '')
+  : '';
 
 interface DashboardData {
   climate: ClimatePoint[];
@@ -31,9 +38,21 @@ export function useDashboardData() {
       setLoading(true);
       setError('');
 
+      if (!normalizedBackendUrl) {
+        setError('Missing frontend env: NEXT_PUBLIC_BACKEND_URL (or NEXT_PUBLIC_API_URL). Add it and redeploy frontend.');
+        setLoading(false);
+        return;
+      }
+
       const endpoints = ['climate', 'air-quality', 'crops', 'co2', 'predict'];
       const results = await Promise.allSettled(
-        endpoints.map((endpoint) => fetch(`${BACKEND_URL}/api/${endpoint}`).then((r) => r.json()))
+        endpoints.map(async (endpoint) => {
+          const response = await fetch(`${normalizedBackendUrl}/api/${endpoint}`);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.json();
+        })
       );
 
       const unpack = (index: number) => (results[index].status === 'fulfilled' ? results[index].value?.data ?? [] : []);
@@ -49,7 +68,7 @@ export function useDashboardData() {
       });
 
       if (results.every((entry) => entry.status === 'rejected')) {
-        setError('Unable to connect to backend API. Please verify deployment and API URL.');
+        setError(`Unable to connect to backend API at ${normalizedBackendUrl}/api. Check backend deployment status and URL variables.`);
       }
 
       setLoading(false);
@@ -57,7 +76,7 @@ export function useDashboardData() {
 
     load().catch(() => {
       if (!mounted) return;
-      setError('Unable to load data right now.');
+      setError('Unable to load data right now. Please retry in a moment.');
       setLoading(false);
     });
 
