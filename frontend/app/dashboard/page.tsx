@@ -25,7 +25,7 @@ export default function DashboardPage() {
       <SectionReveal from="up">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Dashboard</p>
-          <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">Interactive Analytics Command Center</h1>
+          <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">Interactive Analytics Command Centre</h1>
           <p className="max-w-2xl text-lg text-slate-600">
             Monitor climate signals, air quality, crop performance, and AI yield scenarios with motion-rich insights.
           </p>
@@ -33,6 +33,19 @@ export default function DashboardPage() {
       </SectionReveal>
 
       <DataStatus loading={loading} error={error} />
+
+      {error && (
+        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          <p className="font-semibold">Deployment variables to set exactly:</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>Frontend: <code>NEXT_PUBLIC_BACKEND_URL=https://climatefood-backend.up.railway.app</code> (then redeploy frontend)</li>
+            <li>Backend: remove custom <code>PORT</code> variable from Railway (let Railway inject it automatically), then redeploy backend</li>
+            <li>Backend optional: <code>NASA_POWER_API_KEY=Hmxo5MANRISwVLcyWR0eeFi08QOUaAiZuA0N8oB3</code></li>
+            <li>Backend optional: <code>FAOSTAT_CSV_PATH=/app/data/faostat_data.csv</code></li>
+            <li>CO2 CSV source is in code: <code>https://ourworldindata.org/grapher/co-emissions-per-capita.csv?v=1&csvType=full&useColumnShortNames=true</code></li>
+          </ul>
+        </div>
+      )}
 
       <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {statCards.map((stat, index) => (

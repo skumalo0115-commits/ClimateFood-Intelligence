@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
-
 interface DashboardData {
   climate: ClimatePoint[];
   airQuality: AirQualityPoint[];
@@ -33,7 +31,14 @@ export function useDashboardData() {
 
       const endpoints = ['climate', 'air-quality', 'crops', 'co2', 'predict'];
       const results = await Promise.allSettled(
-        endpoints.map((endpoint) => fetch(`${BACKEND_URL}/api/${endpoint}`).then((r) => r.json()))
+        endpoints.map(async (endpoint) => {
+          const response = await fetch(`/api/data/${endpoint}`);
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload?.error || `HTTP ${response.status}`);
+          }
+          return payload;
+        })
       );
 
       const unpack = (index: number) => (results[index].status === 'fulfilled' ? results[index].value?.data ?? [] : []);
@@ -49,7 +54,7 @@ export function useDashboardData() {
       });
 
       if (results.every((entry) => entry.status === 'rejected')) {
-        setError('Unable to connect to backend API. Please verify deployment and API URL.');
+        setError('Unable to retrieve data from backend API. Check backend deployment health and frontend/backend URL variables.');
       }
 
       setLoading(false);
@@ -57,7 +62,7 @@ export function useDashboardData() {
 
     load().catch(() => {
       if (!mounted) return;
-      setError('Unable to load data right now.');
+      setError('Unable to load data right now. Please retry in a moment.');
       setLoading(false);
     });
 
