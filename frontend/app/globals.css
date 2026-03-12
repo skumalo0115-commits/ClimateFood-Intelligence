@@ -78,3 +78,56 @@ h4 {
 .glow-card:hover::before {
   opacity: 1;
 }
+
+.network-lines,
+.network-nodes {
+  position: absolute;
+  inset: 0;
+}
+
+.network-lines {
+  background-image: linear-gradient(115deg, rgba(14, 165, 233, 0.18) 1px, transparent 1px),
+    linear-gradient(25deg, rgba(124, 58, 237, 0.14) 1px, transparent 1px);
+  background-size: 340px 180px, 420px 220px;
+  animation: drift 28s linear infinite;
+  opacity: 0.5;
+}
+
+.network-nodes {
+  background-image: radial-gradient(circle at 8% 30%, rgba(6, 182, 212, 0.35) 0 8px, transparent 9px),
+    radial-gradient(circle at 18% 38%, rgba(14, 116, 144, 0.38) 0 5px, transparent 6px),
+    radial-gradient(circle at 27% 45%, rgba(6, 182, 212, 0.35) 0 6px, transparent 7px),
+    radial-gradient(circle at 41% 52%, rgba(59, 130, 246, 0.3) 0 8px, transparent 9px),
+    radial-gradient(circle at 55% 48%, rgba(168, 85, 247, 0.33) 0 8px, transparent 9px),
+    radial-gradient(circle at 67% 42%, rgba(124, 58, 237, 0.35) 0 6px, transparent 7px),
+    radial-gradient(circle at 80% 34%, rgba(126, 34, 206, 0.36) 0 9px, transparent 10px),
+    radial-gradient(circle at 90% 28%, rgba(139, 92, 246, 0.34) 0 7px, transparent 8px);
+  filter: blur(0.15px);
+  animation: float 14s ease-in-out infinite;
+  opacity: 0.65;
+}
+
+.network-nodes.delay {
+  transform: translateY(8%);
+  opacity: 0.4;
+  animation-delay: -6s;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-120px, 30px, 0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
