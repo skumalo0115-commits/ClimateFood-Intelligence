@@ -13,7 +13,7 @@ const items = [
 
 export default function DashboardSidebar() {
   return (
-    <aside className="hidden h-screen w-64 flex-col border-r border-slate-200 bg-white/80 px-6 py-8 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80 lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-64 flex-col overflow-y-auto border-r border-slate-200 bg-white/80 px-6 py-8 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80 lg:flex">
       <Link href="/" className="text-lg font-semibold text-slate-900 dark:text-slate-100">
         ClimateFood Intelligence
       </Link>

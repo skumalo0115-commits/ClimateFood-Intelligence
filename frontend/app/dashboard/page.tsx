@@ -38,9 +38,11 @@ export default function DashboardPage() {
         <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
           <p className="font-semibold">Deployment variables to set exactly:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Frontend: <code>NEXT_PUBLIC_BACKEND_URL=https://YOUR-BACKEND-DOMAIN</code></li>
-            <li>Backend: <code>PORT</code> is provided by Railway automatically</li>
-            <li>Optional backend: <code>NASA_POWER_API_KEY</code> and <code>FAOSTAT_CSV_PATH</code></li>
+            <li>Frontend: <code>NEXT_PUBLIC_BACKEND_URL=https://climatefood-backend.up.railway.app</code></li>
+            <li>Backend: <code>PORT</code> (set automatically by Railway)</li>
+            <li>Backend optional: <code>NASA_POWER_API_KEY=Hmxo5MANRISwVLcyWR0eeFi08QOUaAiZuA0N8oB3</code></li>
+            <li>Backend optional: <code>FAOSTAT_CSV_PATH=/app/data/faostat_data.csv</code></li>
+            <li>CO2 CSV source is in code: <code>https://ourworldindata.org/grapher/co-emissions-per-capita.csv?v=1&csvType=full&useColumnShortNames=true</code></li>
           </ul>
         </div>
       )}

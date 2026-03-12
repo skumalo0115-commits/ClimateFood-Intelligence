@@ -179,3 +179,15 @@ html.dark .glow-card {
 html.dark .glow-card::before {
   background: radial-gradient(circle at top, rgba(16, 185, 129, 0.24), transparent 60%);
 }
+
+/* Force high-contrast white text in dark mode across app content */
+html.dark :is(
+  .text-slate-900,
+  .text-slate-800,
+  .text-slate-700,
+  .text-slate-600,
+  .text-slate-500,
+  .text-slate-400
+) {
+  color: #ffffff !important;
+}
