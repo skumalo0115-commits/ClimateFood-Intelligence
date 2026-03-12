@@ -25,14 +25,25 @@ export default function DashboardPage() {
       <SectionReveal from="up">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Dashboard</p>
-          <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">Interactive Analytics Command Center</h1>
-          <p className="max-w-2xl text-lg text-slate-600">
+          <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl dark:text-slate-100">Interactive Analytics Command Center</h1>
+          <p className="max-w-2xl text-lg text-slate-600 dark:text-slate-300">
             Monitor climate signals, air quality, crop performance, and AI yield scenarios with motion-rich insights.
           </p>
         </div>
       </SectionReveal>
 
       <DataStatus loading={loading} error={error} />
+
+      {error && (
+        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
+          <p className="font-semibold">Deployment variables to set exactly:</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>Frontend: <code>NEXT_PUBLIC_BACKEND_URL=https://YOUR-BACKEND-DOMAIN</code></li>
+            <li>Backend: <code>PORT</code> is provided by Railway automatically</li>
+            <li>Optional backend: <code>NASA_POWER_API_KEY</code> and <code>FAOSTAT_CSV_PATH</code></li>
+          </ul>
+        </div>
+      )}
 
       <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {statCards.map((stat, index) => (
@@ -43,10 +54,10 @@ export default function DashboardPage() {
             viewport={{ once: false, amount: 0.3 }}
             transition={{ delay: index * 0.08 }}
             whileHover={{ y: -6 }}
-            className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm"
+            className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/85"
           >
-            <p className="text-2xl font-semibold text-slate-900">{stat.value}</p>
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">{stat.label}</p>
+            <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{stat.value}</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">{stat.label}</p>
           </motion.div>
         ))}
       </div>
