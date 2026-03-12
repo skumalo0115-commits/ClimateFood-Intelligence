@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
-
 interface DashboardData {
   climate: ClimatePoint[];
   airQuality: AirQualityPoint[];
@@ -12,6 +10,13 @@ interface DashboardData {
   co2: Co2Point[];
   predictions: PredictionPoint[];
 }
+
+interface ProxyPayload {
+  data?: unknown[];
+  error?: string;
+}
+
+const ENDPOINTS = ['climate', 'air-quality', 'crops', 'co2', 'predict'] as const;
 
 export function useDashboardData() {
   const [data, setData] = useState<DashboardData>({
@@ -24,32 +29,40 @@ export function useDashboardData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Legacy safety alias to avoid stale build references to normalizedBackendUrl.
+  const normalizedBackendUrl = '/api/data';
+
   useEffect(() => {
     let mounted = true;
+
+    const fetchEndpoint = async (endpoint: (typeof ENDPOINTS)[number]) => {
+      const response = await fetch(`/api/data/${endpoint}`);
+      const payload = (await response.json()) as ProxyPayload;
+      if (!response.ok) {
+        throw new Error(payload.error || `HTTP ${response.status}`);
+      }
+      return payload;
+    };
 
     const load = async () => {
       setLoading(true);
       setError('');
 
-      const endpoints = ['climate', 'air-quality', 'crops', 'co2', 'predict'];
-      const results = await Promise.allSettled(
-        endpoints.map((endpoint) => fetch(`${BACKEND_URL}/api/${endpoint}`).then((r) => r.json()))
-      );
-
+      const results = await Promise.allSettled(ENDPOINTS.map((endpoint) => fetchEndpoint(endpoint)));
       const unpack = (index: number) => (results[index].status === 'fulfilled' ? results[index].value?.data ?? [] : []);
 
       if (!mounted) return;
 
       setData({
-        climate: unpack(0),
-        airQuality: unpack(1),
-        crops: unpack(2),
-        co2: unpack(3),
-        predictions: unpack(4)
+        climate: unpack(0) as ClimatePoint[],
+        airQuality: unpack(1) as AirQualityPoint[],
+        crops: unpack(2) as CropPoint[],
+        co2: unpack(3) as Co2Point[],
+        predictions: unpack(4) as PredictionPoint[]
       });
 
       if (results.every((entry) => entry.status === 'rejected')) {
-        setError('Unable to connect to backend API. Please verify deployment and API URL.');
+        setError('Unable to retrieve data from backend API. Check backend deployment health and frontend/backend URL variables.');
       }
 
       setLoading(false);
@@ -57,7 +70,7 @@ export function useDashboardData() {
 
     load().catch(() => {
       if (!mounted) return;
-      setError('Unable to load data right now.');
+      setError('Unable to load data right now. Please retry in a moment.');
       setLoading(false);
     });
 
