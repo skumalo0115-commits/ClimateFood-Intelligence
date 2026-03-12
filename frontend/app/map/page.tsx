@@ -1,9 +1,11 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
-import MapPanel from '@/components/MapPanel';
+
+const MapPanel = dynamic(() => import('@/components/MapPanel'), { ssr: false });
 
 export default function MapPage() {
   return (

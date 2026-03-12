@@ -1,11 +1,13 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import ChartsPanel from '@/components/ChartsPanel';
 import DataStatus from '@/components/DataStatus';
-import MapPanel from '@/components/MapPanel';
 import SectionReveal from '@/components/SectionReveal';
 import { useDashboardData } from '@/lib/useDashboardData';
+
+const MapPanel = dynamic(() => import('@/components/MapPanel'), { ssr: false });
 
 export default function DashboardPage() {
   const { climate, airQuality, crops, co2, predictions, loading, error } = useDashboardData();
