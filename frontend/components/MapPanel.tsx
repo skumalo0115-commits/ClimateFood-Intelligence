@@ -10,7 +10,7 @@ const points = [
 
 export default function MapPanel() {
   return (
-    <div className="mt-8 overflow-hidden rounded-2xl border border-slate-800">
+    <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       <MapContainer center={[10, 20]} zoom={2} style={{ height: '420px', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {points.map((p) => (

@@ -1,0 +1,36 @@
+'use client';
+
+import Navbar from '@/components/Navbar';
+import PageHeader from '@/components/PageHeader';
+import SectionReveal from '@/components/SectionReveal';
+import { ChartCard } from '@/components/ChartsPanel';
+import DataStatus from '@/components/DataStatus';
+import { useDashboardData } from '@/lib/useDashboardData';
+
+export default function CropsPage() {
+  const { crops, loading, error } = useDashboardData();
+
+  const data = {
+    labels: crops.map((d) => d.year),
+    datasets: [{ label: 'Production', data: crops.map((d) => d.value), borderColor: '#6366f1' }]
+  };
+
+  return (
+    <main>
+      <Navbar />
+      <section className="section-container">
+        <PageHeader
+          eyebrow="Crops"
+          title="Crop production momentum"
+          subtitle="Reveal yield trajectories and production shifts with a clean, animated line of sight."
+        />
+        <DataStatus loading={loading} error={error} />
+        <SectionReveal from="left">
+          <div className="mt-10">
+            <ChartCard title="Production trends" data={data} />
+          </div>
+        </SectionReveal>
+      </section>
+    </main>
+  );
+}

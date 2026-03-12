@@ -1,0 +1,36 @@
+'use client';
+
+import Navbar from '@/components/Navbar';
+import PageHeader from '@/components/PageHeader';
+import SectionReveal from '@/components/SectionReveal';
+import { ChartCard } from '@/components/ChartsPanel';
+import DataStatus from '@/components/DataStatus';
+import { useDashboardData } from '@/lib/useDashboardData';
+
+export default function PredictionsPage() {
+  const { predictions, loading, error } = useDashboardData();
+
+  const data = {
+    labels: predictions.map((d) => `Scenario ${d.scenario}`),
+    datasets: [{ label: 'Predicted yield', data: predictions.map((d) => d.predicted_yield), borderColor: '#f59e0b' }]
+  };
+
+  return (
+    <main>
+      <Navbar />
+      <section className="section-container">
+        <PageHeader
+          eyebrow="Predictions"
+          title="AI yield scenario modeling"
+          subtitle="Compare outcomes across scenarios to keep plans resilient and adaptable."
+        />
+        <DataStatus loading={loading} error={error} />
+        <SectionReveal from="left">
+          <div className="mt-10">
+            <ChartCard title="Predicted yield scenarios" data={data} />
+          </div>
+        </SectionReveal>
+      </section>
+    </main>
+  );
+}

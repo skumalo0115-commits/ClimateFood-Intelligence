@@ -1,86 +1,136 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Hero from '@/components/Hero';
 import Navbar from '@/components/Navbar';
-import ChartsPanel from '@/components/ChartsPanel';
-import ThemeToggle from '@/components/ThemeToggle';
 import SectionReveal from '@/components/SectionReveal';
-import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint, ThemeMode } from '@/lib/types';
 
-const MapPanel = dynamic(() => import('@/components/MapPanel'), { ssr: false });
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
+const features = [
+  {
+    title: 'Climate pulse in real time',
+    description:
+      'Track temperature and precipitation trends with a high fidelity lens. Identify sudden anomalies and seasonal shifts before they impact planning.',
+    image:
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+    href: '/climate',
+    cta: 'Explore climate intelligence'
+  },
+  {
+    title: 'Air quality signals that matter',
+    description:
+      'Measure PM10 and PM2.5 levels alongside weather context. Turn air quality into a clear signal for field response and operations.',
+    image:
+      'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80',
+    href: '/air-quality',
+    cta: 'See air quality'
+  },
+  {
+    title: 'Crop production momentum',
+    description:
+      'Understand yield trajectories by region and crop. Spot growth accelerators and disruptions early using trend-driven dashboards.',
+    image:
+      'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80',
+    href: '/crops',
+    cta: 'View crop analytics'
+  },
+  {
+    title: 'Emissions and impact',
+    description:
+      'Relate per-capita emissions to climate stress and food security risk. Build a sharper picture of sustainability tradeoffs.',
+    image:
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+    href: '/emissions',
+    cta: 'Review emissions'
+  },
+  {
+    title: 'AI yield forecasts',
+    description:
+      'Use predictive scenarios to anticipate yield changes. Keep stakeholders aligned with forward-looking insights.',
+    image:
+      'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80',
+    href: '/predictions',
+    cta: 'Open AI scenarios'
+  },
+  {
+    title: 'Geo intelligence',
+    description:
+      'Layer contextual maps with data markers to see patterns by region. Navigate global hotspots in a single canvas.',
+    image:
+      'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=80',
+    href: '/map',
+    cta: 'Open live map'
+  }
+];
 
 export default function HomePage() {
-  const [theme, setTheme] = useState<ThemeMode>('dark');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const [climate, setClimate] = useState<ClimatePoint[]>([]);
-  const [airQuality, setAirQuality] = useState<AirQualityPoint[]>([]);
-  const [crops, setCrops] = useState<CropPoint[]>([]);
-  const [co2, setCo2] = useState<Co2Point[]>([]);
-  const [predictions, setPredictions] = useState<PredictionPoint[]>([]);
-
-  useEffect(() => {
-    document.documentElement.classList.remove('dark', 'light', 'gradient');
-    document.documentElement.classList.add(theme);
-  }, [theme]);
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError('');
-      const endpoints = ['climate', 'air-quality', 'crops', 'co2', 'predict'];
-      const results = await Promise.allSettled(
-        endpoints.map((endpoint) => fetch(`${BACKEND_URL}/api/${endpoint}`).then((r) => r.json()))
-      );
-
-      const unpack = (index: number) => (results[index].status === 'fulfilled' ? results[index].value?.data ?? [] : []);
-
-      setClimate(unpack(0));
-      setAirQuality(unpack(1));
-      setCrops(unpack(2));
-      setCo2(unpack(3));
-      setPredictions(unpack(4));
-
-      if (results.every((entry) => entry.status === 'rejected')) {
-        setError('Unable to connect to backend API. Please verify deployment and API URL.');
-      }
-
-      setLoading(false);
-    };
-
-    load().catch(() => {
-      setError('Unable to load data right now.');
-      setLoading(false);
-    });
-  }, []);
-
   return (
     <main>
       <Navbar />
       <Hero />
-      <section id="dashboard" className="section-container">
-        <SectionReveal>
-          <h2 className="text-3xl font-bold">Interactive Analytics Dashboard</h2>
-          <p className="mt-2 text-slate-300">Track climate, air quality, food supply, emissions and AI yield scenarios in one place.</p>
-        </SectionReveal>
 
-        {error && <div className="mt-6 rounded-xl border border-rose-400/30 bg-rose-500/10 p-4 text-rose-200">{error}</div>}
-        {loading && <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900/70 p-4 text-slate-300">Loading live dashboard data...</div>}
-
-        <SectionReveal from="right">
-          <div id="data-insights" className="mt-8">
-            <ChartsPanel climate={climate} airQuality={airQuality} crops={crops} co2={co2} predictions={predictions} />
+      <section className="section-container">
+        <SectionReveal from="up">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Platform focus</p>
+            <h2 className="mt-4 text-4xl font-semibold text-slate-900 md:text-5xl">
+              Every part has its own page, and everything moves with purpose.
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Scroll to see alternating story blocks, cinematic reveals, and a polished light-only interface. Each domain lives on its own
+              page for clarity and speed.
+            </p>
           </div>
         </SectionReveal>
-        <SectionReveal>
-          <MapPanel />
+
+        <div className="mt-16 space-y-16">
+          {features.map((feature, index) => (
+            <div
+              key={feature.title}
+              className={`grid items-center gap-10 lg:grid-cols-[1.05fr,0.95fr] ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}
+            >
+              <SectionReveal from={index % 2 === 0 ? 'left' : 'right'}>
+                <div className="glow-card">
+                  <img src={feature.image} alt={feature.title} className="h-72 w-full rounded-2xl object-cover" />
+                </div>
+              </SectionReveal>
+              <SectionReveal from={index % 2 === 0 ? 'right' : 'left'}>
+                <div>
+                  <h3 className="text-3xl font-semibold text-slate-900">{feature.title}</h3>
+                  <p className="mt-4 text-lg text-slate-600">{feature.description}</p>
+                  <Link
+                    href={feature.href}
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-900"
+                  >
+                    {feature.cta} ->
+                  </Link>
+                </div>
+              </SectionReveal>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="section-container">
+        <SectionReveal from="down">
+          <div className="glow-card grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Launch dashboard</p>
+              <h2 className="mt-4 text-4xl font-semibold text-slate-900">The analytics command center.</h2>
+              <p className="mt-4 text-lg text-slate-600">
+                The dashboard brings every signal together with motion, clarity, and spatial navigation. Ready to explore live data?
+              </p>
+            </div>
+            <div className="flex items-center justify-start lg:justify-end">
+              <Link
+                href="/dashboard"
+                className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:translate-y-[-2px] hover:bg-slate-800"
+              >
+                Enter dashboard
+              </Link>
+            </div>
+          </div>
         </SectionReveal>
       </section>
-      <ThemeToggle mode={theme} onChange={setTheme} />
     </main>
   );
 }

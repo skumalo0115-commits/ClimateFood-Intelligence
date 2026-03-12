@@ -10,6 +10,7 @@ import {
   Legend
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { motion } from 'framer-motion';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
@@ -22,12 +23,12 @@ interface Props {
   predictions: PredictionPoint[];
 }
 
-const chartOptions = {
+export const chartOptions = {
   responsive: true,
-  plugins: { legend: { labels: { color: '#fff' } } },
+  plugins: { legend: { labels: { color: '#0f172a' } } },
   scales: {
-    x: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148,163,184,0.2)' } },
-    y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148,163,184,0.2)' } }
+    x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(148,163,184,0.3)' } },
+    y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(148,163,184,0.3)' } }
   }
 };
 
@@ -41,8 +42,8 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         data={{
           labels: climate.map((d) => d.date),
           datasets: [
-            { label: 'Temperature °C', data: climate.map((d) => d.temperature), borderColor: '#22c55e' },
-            { label: 'Precipitation mm', data: climate.map((d) => d.precipitation), borderColor: '#3b82f6' }
+            { label: 'Temperature C', data: climate.map((d) => d.temperature), borderColor: '#22c55e' },
+            { label: 'Precipitation mm', data: climate.map((d) => d.precipitation), borderColor: '#38bdf8' }
           ]
         }}
       />
@@ -60,14 +61,14 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title="Crop Production Trends"
         data={{
           labels: crops.map((d) => d.year),
-          datasets: [{ label: 'Production', data: crops.map((d) => d.value), borderColor: '#a855f7' }]
+          datasets: [{ label: 'Production', data: crops.map((d) => d.value), borderColor: '#6366f1' }]
         }}
       />
       <ChartCard
-        title="CO₂ Emissions (per capita)"
+        title="CO2 Emissions (per capita)"
         data={{
           labels: co2Germany.map((d) => d.year),
-          datasets: [{ label: 'Germany CO₂ / capita', data: co2Germany.map((d) => d.co_emissions_per_capita), borderColor: '#14b8a6' }]
+          datasets: [{ label: 'Germany CO2 / capita', data: co2Germany.map((d) => d.co_emissions_per_capita), borderColor: '#0ea5e9' }]
         }}
       />
       <ChartCard
@@ -82,17 +83,22 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
   );
 }
 
-function ChartCard({ title, data, className = '' }: { title: string; data: any; className?: string }) {
+export function ChartCard({ title, data, className = '' }: { title: string; data: any; className?: string }) {
   const hasData = Array.isArray(data?.labels) && data.labels.length > 0;
 
   return (
-    <div className={`rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl ${className}`}>
-      <h3 className="mb-4 text-lg font-semibold">{title}</h3>
+    <motion.div
+      whileHover={{ y: -6 }}
+      className={`rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${className}`}
+    >
+      <h3 className="mb-4 text-lg font-semibold text-slate-900">{title}</h3>
       {hasData ? (
         <Line data={data} options={chartOptions} />
       ) : (
-        <div className="rounded-lg border border-dashed border-slate-700 p-8 text-center text-slate-400">Data temporarily unavailable.</div>
+        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-slate-500">
+          Data temporarily unavailable.
+        </div>
       )}
-    </div>
+    </motion.div>
   );
 }

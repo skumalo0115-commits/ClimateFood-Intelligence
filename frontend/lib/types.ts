@@ -1,5 +1,3 @@
-export type ThemeMode = 'dark' | 'light' | 'gradient';
-
 export interface ClimatePoint {
   date: string;
   temperature: number;
