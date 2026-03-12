@@ -114,7 +114,7 @@ export default function HomePage() {
           <div className="glow-card grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Launch dashboard</p>
-              <h2 className="mt-4 text-4xl font-semibold text-slate-900">The analytics command center.</h2>
+              <h2 className="mt-4 text-4xl font-semibold text-slate-900">The analytics command centre.</h2>
               <p className="mt-4 text-lg text-slate-600">
                 The dashboard brings every signal together with motion, clarity, and spatial navigation. Ready to explore live data?
               </p>

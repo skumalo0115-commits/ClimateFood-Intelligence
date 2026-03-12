@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import Footer from '@/components/Footer';
 import NetworkBackground from '@/components/NetworkBackground';
-import ThemeToggle from '@/components/ThemeToggle';
 
 const display = Playfair_Display({ subsets: ['latin'], variable: '--font-display' });
 const sans = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });
@@ -21,7 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="relative z-10 flex min-h-screen flex-col">
           <div className="flex-1">{children}</div>
           <Footer />
-          <ThemeToggle />
         </div>
       </body>
     </html>

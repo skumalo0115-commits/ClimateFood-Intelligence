@@ -3,15 +3,6 @@
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 
-const rawBackendUrl =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
-
-const normalizedBackendUrl = rawBackendUrl
-  ? `${rawBackendUrl.startsWith('http://') || rawBackendUrl.startsWith('https://') ? rawBackendUrl : `https://${rawBackendUrl}`}`
-      .replace(/\/$/, '')
-      .replace(/\/api$/, '')
-  : '';
-
 interface DashboardData {
   climate: ClimatePoint[];
   airQuality: AirQualityPoint[];
@@ -47,11 +38,12 @@ export function useDashboardData() {
       const endpoints = ['climate', 'air-quality', 'crops', 'co2', 'predict'];
       const results = await Promise.allSettled(
         endpoints.map(async (endpoint) => {
-          const response = await fetch(`${normalizedBackendUrl}/api/${endpoint}`);
+          const response = await fetch(`/api/data/${endpoint}`);
+          const payload = await response.json();
           if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+            throw new Error(payload?.error || `HTTP ${response.status}`);
           }
-          return response.json();
+          return payload;
         })
       );
 
@@ -68,7 +60,7 @@ export function useDashboardData() {
       });
 
       if (results.every((entry) => entry.status === 'rejected')) {
-        setError(`Unable to connect to backend API at ${normalizedBackendUrl}/api. Check backend deployment status and URL variables.`);
+        setError('Unable to retrieve data from backend API. Check backend deployment health and frontend/backend URL variables.');
       }
 
       setLoading(false);
