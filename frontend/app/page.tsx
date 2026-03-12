@@ -73,11 +73,10 @@ export default function HomePage() {
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Platform focus</p>
             <h2 className="mt-4 text-4xl font-semibold text-slate-900 md:text-5xl">
-              Every part has its own page, and everything moves with purpose.
+              Integrated climate, air, crop, emissions, and prediction intelligence in one platform.
             </h2>
             <p className="mt-4 text-lg text-slate-600">
-              Scroll to see alternating story blocks, cinematic reveals, and a polished light-only interface. Each domain lives on its own
-              page for clarity and speed.
+              Explore dedicated pages for climate conditions, air quality, crop performance, emissions, predictive modeling, and map-based context. The platform is designed to help teams compare signals quickly and make confident, data-backed decisions.
             </p>
           </div>
         </SectionReveal>
