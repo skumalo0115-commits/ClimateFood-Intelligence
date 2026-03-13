@@ -195,3 +195,5 @@ Add your screenshots here after running the app locally:
 - **Frontend:** Next.js, React, TypeScript, TailwindCSS, Framer Motion, Chart.js, Leaflet
 - **Backend:** FastAPI, Pandas, Scikit-learn, Requests
 - **Data:** NASA POWER, Open-Meteo APIs, FAOSTAT CSV workflow, OWID CO₂ CSV workflow
+
+Deploy check: 2026-03-13
