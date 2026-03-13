@@ -17,13 +17,15 @@ const links = [
 ];
 
 const mobileLinks = [
+  { label: 'Home', href: '/' },
   { label: 'Climate', href: '/climate' },
   { label: 'Air Quality', href: '/air-quality' },
   { label: 'Crops', href: '/crops' },
   { label: 'Emissions', href: '/emissions' },
   { label: 'Predictions', href: '/predictions' },
   { label: 'Map', href: '/map' },
-  { label: 'Admin', href: '/admin' }
+  { label: 'Admin', href: '/admin' },
+  { label: 'Dashboard', href: '/dashboard' }
 ];
 
 export default function Navbar() {
@@ -36,7 +38,7 @@ export default function Navbar() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
+    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur md:static md:top-auto dark:border-slate-800 dark:bg-slate-950/85">
       <nav className="grid w-full grid-cols-[auto,1fr,auto] items-center gap-3 px-3 py-5 lg:px-5 xl:px-6">
         <Link
           href="/"
@@ -64,7 +66,7 @@ export default function Navbar() {
         </ul>
 
         {!isDashboard && (
-          <div className="relative justify-self-end xl:hidden">
+          <div className="relative justify-self-end xl:hidden mr-3">
             <button
               type="button"
               aria-expanded={menuOpen}

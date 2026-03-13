@@ -82,15 +82,15 @@ export default function AdminPage() {
   return (
     <main className="relative min-h-screen">
       <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
-      <div className="pointer-events-none absolute inset-0 bg-white/75" />
       <div className="relative z-10">
         <Navbar />
         <section className="section-container">
-        <PageHeader
-          eyebrow="Admin"
-          title="Live location controls"
-          subtitle="Update country focus and coordinates without redeploying. Changes apply immediately to live API calls."
-        />
+          <PageHeader
+            eyebrow="Admin"
+            title="Live location controls"
+            subtitle="Update country focus and coordinates without redeploying. Changes apply immediately to live API calls."
+            tone="light"
+          />
 
         {warning && <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{warning}</div>}
         {error && <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}

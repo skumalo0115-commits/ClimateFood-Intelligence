@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
+import Navbar from '@/components/Navbar';
 import ChartsPanel from '@/components/ChartsPanel';
 import DataStatus from '@/components/DataStatus';
 import SectionReveal from '@/components/SectionReveal';
@@ -26,6 +27,9 @@ export default function DashboardPage() {
     <main className="relative min-h-screen">
       <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
       <div className="pointer-events-none absolute inset-0 bg-white/75" />
+      <div className="relative z-10 hidden md:block">
+        <Navbar />
+      </div>
       <section className="section-container relative z-10">
       <SectionReveal from="up">
         <div className="flex flex-col gap-3">

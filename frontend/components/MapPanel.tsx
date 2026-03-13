@@ -7,38 +7,60 @@ import { motion, useInView } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
-function MobileTwoFingerGesture() {
+function MobileDoubleTapGesture() {
   const map = useMap();
 
   useEffect(() => {
     if (typeof window === 'undefined' || !L.Browser.mobile) return;
     const container = map.getContainer();
+    let lastTap = 0;
+    let disableTimer: number | null = null;
+    let unlocked = false;
 
-    map.dragging.disable();
-    map.touchZoom.disable();
-
-    const enableGestures = (event: TouchEvent) => {
-      if (event.touches.length >= 2) {
-        map.dragging.enable();
-        map.touchZoom.enable();
-      }
+    const disableGestures = () => {
+      unlocked = false;
+      map.dragging.disable();
+      map.touchZoom.disable();
     };
 
-    const disableGestures = (event: TouchEvent) => {
-      if (event.touches.length < 2) {
-        map.dragging.disable();
-        map.touchZoom.disable();
-      }
+    const enableGestures = () => {
+      unlocked = true;
+      map.dragging.enable();
+      map.touchZoom.enable();
     };
 
-    container.addEventListener('touchstart', enableGestures, { passive: true });
-    container.addEventListener('touchend', disableGestures);
-    container.addEventListener('touchcancel', disableGestures);
+    disableGestures();
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length > 1) return;
+      const now = Date.now();
+      if (now - lastTap < 300) {
+        if (unlocked) {
+          disableGestures();
+        } else {
+          enableGestures();
+        }
+      }
+      lastTap = now;
+    };
+
+    const onTouchEnd = () => {
+      if (!unlocked) return;
+      if (disableTimer) window.clearTimeout(disableTimer);
+      disableTimer = window.setTimeout(() => {
+        disableGestures();
+      }, 5000);
+    };
+
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchend', onTouchEnd);
+    container.addEventListener('touchcancel', onTouchEnd);
 
     return () => {
-      container.removeEventListener('touchstart', enableGestures);
-      container.removeEventListener('touchend', disableGestures);
-      container.removeEventListener('touchcancel', disableGestures);
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchend', onTouchEnd);
+      container.removeEventListener('touchcancel', onTouchEnd);
+      if (disableTimer) window.clearTimeout(disableTimer);
       map.dragging.enable();
       map.touchZoom.enable();
     };
@@ -77,7 +99,7 @@ export default function MapPanel() {
         className="map-touch-scroll"
         style={{ height: '420px', width: '100%' }}
       >
-        <MobileTwoFingerGesture />
+        <MobileDoubleTapGesture />
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {points.map((p) => (
           <CircleMarker center={[p.lat, p.lng]} radius={10} pathOptions={{ color: '#10b981', fillColor: '#10b981' }} key={p.label}>
