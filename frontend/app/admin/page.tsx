@@ -16,6 +16,8 @@ export default function AdminPage() {
   const { config, loading, error, warning, updateConfig } = useRuntimeConfig();
   const [status, setStatus] = useState('');
   const [saving, setSaving] = useState(false);
+  const backgroundImage =
+    'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80';
   const [form, setForm] = useState({
     country: '',
     country_code: '',
@@ -78,9 +80,12 @@ export default function AdminPage() {
   };
 
   return (
-    <main>
-      <Navbar />
-      <section className="section-container">
+    <main className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
+      <div className="pointer-events-none absolute inset-0 bg-white/75" />
+      <div className="relative z-10">
+        <Navbar />
+        <section className="section-container">
         <PageHeader
           eyebrow="Admin"
           title="Live location controls"
@@ -185,7 +190,8 @@ export default function AdminPage() {
             </div>
           </form>
         </SectionReveal>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }

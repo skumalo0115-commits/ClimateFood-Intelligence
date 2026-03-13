@@ -203,8 +203,7 @@ export function ChartCard({
       ref={ref}
       {...revealMotion}
       whileHover={{ y: -6 }}
-      onClick={() => setOpen((prev) => !prev)}
-      className={`relative flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${className}`}
+      className={`relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${className}`}
     >
       <motion.span
         initial={{ scaleX: 0, opacity: 0 }}
@@ -216,11 +215,16 @@ export function ChartCard({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-          <p className="mt-1 text-xs uppercase tracking-[0.3em] text-slate-400">Click for assistant insight</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.3em] text-slate-400">Tap / click AI for assistant insight</p>
         </div>
-        <span className="grid h-10 w-10 place-items-center rounded-full bg-emerald-500/10 text-xs font-bold text-emerald-600">
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen((prev) => !prev)}
+          className="grid h-10 w-10 place-items-center rounded-full bg-emerald-500/10 text-xs font-bold text-emerald-600 transition hover:bg-emerald-500/20"
+        >
           AI
-        </span>
+        </button>
       </div>
 
       <div className="mt-4 flex-1">

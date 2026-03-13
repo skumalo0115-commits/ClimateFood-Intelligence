@@ -1,10 +1,51 @@
 'use client';
 
-import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet';
+import L from 'leaflet';
+import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
+
+function MobileTwoFingerGesture() {
+  const map = useMap();
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !L.Browser.mobile) return;
+    const container = map.getContainer();
+
+    map.dragging.disable();
+    map.touchZoom.disable();
+
+    const enableGestures = (event: TouchEvent) => {
+      if (event.touches.length >= 2) {
+        map.dragging.enable();
+        map.touchZoom.enable();
+      }
+    };
+
+    const disableGestures = (event: TouchEvent) => {
+      if (event.touches.length < 2) {
+        map.dragging.disable();
+        map.touchZoom.disable();
+      }
+    };
+
+    container.addEventListener('touchstart', enableGestures, { passive: true });
+    container.addEventListener('touchend', disableGestures);
+    container.addEventListener('touchcancel', disableGestures);
+
+    return () => {
+      container.removeEventListener('touchstart', enableGestures);
+      container.removeEventListener('touchend', disableGestures);
+      container.removeEventListener('touchcancel', disableGestures);
+      map.dragging.enable();
+      map.touchZoom.enable();
+    };
+  }, [map]);
+
+  return null;
+}
 
 export default function MapPanel() {
   const { config } = useRuntimeConfig();
@@ -33,8 +74,10 @@ export default function MapPanel() {
         zoom={5}
         scrollWheelZoom={false}
         touchZoom={false}
+        className="map-touch-scroll"
         style={{ height: '420px', width: '100%' }}
       >
+        <MobileTwoFingerGesture />
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {points.map((p) => (
           <CircleMarker center={[p.lat, p.lng]} radius={10} pathOptions={{ color: '#10b981', fillColor: '#10b981' }} key={p.label}>

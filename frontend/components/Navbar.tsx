@@ -1,4 +1,8 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const links = [
   { label: 'Home', href: '/' },
@@ -12,7 +16,25 @@ const links = [
   { label: 'Dashboard', href: '/dashboard', isCta: true }
 ];
 
+const mobileLinks = [
+  { label: 'Climate', href: '/climate' },
+  { label: 'Air Quality', href: '/air-quality' },
+  { label: 'Crops', href: '/crops' },
+  { label: 'Emissions', href: '/emissions' },
+  { label: 'Predictions', href: '/predictions' },
+  { label: 'Map', href: '/map' },
+  { label: 'Admin', href: '/admin' }
+];
+
 export default function Navbar() {
+  const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isDashboard = pathname?.startsWith('/dashboard');
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
       <nav className="grid w-full grid-cols-[auto,1fr,auto] items-center gap-3 px-3 py-5 lg:px-5 xl:px-6">
@@ -41,7 +63,44 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <div className="justify-self-end" />
+        {!isDashboard && (
+          <div className="relative justify-self-end xl:hidden">
+            <button
+              type="button"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-sm transition hover:border-slate-300"
+            >
+              <span className="sr-only">Toggle navigation menu</span>
+              <span className="flex flex-col gap-1.5">
+                <span className="h-0.5 w-6 rounded-full bg-slate-700" />
+                <span className="h-0.5 w-6 rounded-full bg-slate-700" />
+                <span className="h-0.5 w-6 rounded-full bg-slate-700" />
+              </span>
+            </button>
+
+            {menuOpen && (
+              <div
+                id="mobile-nav"
+                className="absolute right-0 mt-3 w-56 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+              >
+                <div className="flex flex-col gap-2">
+                  {mobileLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </nav>
     </header>
   );

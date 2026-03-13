@@ -158,6 +158,18 @@ h4 {
   z-index: 0;
 }
 
+.map-touch-scroll {
+  touch-action: pan-y pinch-zoom;
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+}
+
 html.dark body {
   background: radial-gradient(circle at top, #020617 0%, #0b1220 40%, #020617 100%);
   color: #e2e8f0;

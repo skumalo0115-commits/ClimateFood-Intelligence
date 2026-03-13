@@ -11,6 +11,8 @@ const MapPanel = dynamic(() => import('@/components/MapPanel'), { ssr: false });
 
 export default function DashboardPage() {
   const { climate, airQuality, crops, co2, predictions, loading, error } = useDashboardData();
+  const backgroundImage =
+    'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80';
 
   const statCards = [
     { label: 'Climate points', value: climate.length },
@@ -21,7 +23,10 @@ export default function DashboardPage() {
   ];
 
   return (
-    <main className="section-container">
+    <main className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
+      <div className="pointer-events-none absolute inset-0 bg-white/75" />
+      <section className="section-container relative z-10">
       <SectionReveal from="up">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Dashboard</p>
@@ -74,6 +79,7 @@ export default function DashboardPage() {
       <SectionReveal from="right">
         <MapPanel />
       </SectionReveal>
+      </section>
     </main>
   );
 }
