@@ -7,7 +7,8 @@ const items = [
   { label: 'Crops', href: '/crops' },
   { label: 'Emissions', href: '/emissions' },
   { label: 'Predictions', href: '/predictions' },
-  { label: 'Map', href: '/map' }
+  { label: 'Map', href: '/map' },
+  { label: 'Admin', href: '/admin' }
 ];
 
 export default function DashboardSidebar() {

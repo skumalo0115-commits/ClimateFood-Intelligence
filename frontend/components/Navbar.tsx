@@ -66,7 +66,7 @@ export default function Navbar() {
         </ul>
 
         {!isDashboard && (
-          <div className="relative justify-self-end xl:hidden mr-6">
+          <div className="relative justify-self-end xl:hidden">
             <button
               type="button"
               aria-expanded={menuOpen}

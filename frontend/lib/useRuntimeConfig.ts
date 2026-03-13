@@ -127,9 +127,6 @@ export function useRuntimeConfig() {
         body: JSON.stringify(payload)
       });
       const body = await response.json();
-      if (body?.warning) {
-        setWarning(body.warning);
-      }
       if (!response.ok) {
         throw new Error(body?.error || 'Unable to update config');
       }

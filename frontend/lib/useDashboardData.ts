@@ -18,6 +18,7 @@ interface ProxyPayload {
 
 const ENDPOINTS = ['climate', 'air-quality', 'crops', 'co2', 'predict'] as const;
 const STORAGE_KEY = 'cfi_dashboard_cache_v2';
+const CONFIG_UPDATE_KEY = 'cfi_config_updated_at';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 let memoryCache: { time: number; data: DashboardData } | null = null;
@@ -33,6 +34,11 @@ function readCache() {
     try {
       const parsed = JSON.parse(raw) as { time: number; data: DashboardData };
       if (!parsed?.time || !parsed?.data) return null;
+      const updatedAt = Number(window.localStorage.getItem(CONFIG_UPDATE_KEY) || 0);
+      if (updatedAt && parsed.time < updatedAt) {
+        memoryCache = null;
+        return null;
+      }
       memoryCache = parsed;
       return parsed;
     } catch {
@@ -79,7 +85,7 @@ export function useDashboardData() {
     }
 
     const fetchEndpoint = async (endpoint: (typeof ENDPOINTS)[number]) => {
-      const response = await fetch(`/api/data/${endpoint}`, { cache: 'force-cache' });
+      const response = await fetch(`/api/data/${endpoint}`, { cache: 'no-store' });
       const payload = (await response.json()) as ProxyPayload;
       if (!response.ok) {
         throw new Error(payload.error || `HTTP ${response.status}`);

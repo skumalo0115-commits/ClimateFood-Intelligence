@@ -70,6 +70,7 @@ export default function AdminPage() {
       await updateConfig(payload);
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem('cfi_dashboard_cache_v2');
+        window.localStorage.setItem('cfi_config_updated_at', String(Date.now()));
       }
       setStatus('Saved. Data caches cleared so the next visit loads the new location.');
     } catch {
