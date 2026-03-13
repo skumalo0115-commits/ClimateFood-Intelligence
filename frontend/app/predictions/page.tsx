@@ -21,7 +21,6 @@ export default function PredictionsPage() {
   return (
     <main className="relative min-h-screen">
       <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
-      <div className="pointer-events-none absolute inset-0 bg-white/70" />
       <div className="relative z-10">
         <Navbar />
         <section className="section-container">

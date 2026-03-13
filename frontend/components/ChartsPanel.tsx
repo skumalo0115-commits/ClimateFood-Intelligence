@@ -246,9 +246,11 @@ export function ChartCard({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start gap-3">
-              <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-sky-500 text-xs font-semibold text-white">
-                CFI
-              </span>
+              <img
+                src="/icon.svg"
+                alt="ClimateFood Intelligence"
+                className="h-9 w-9 flex-shrink-0 rounded-2xl shadow-sm"
+              />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500">Insight</p>
                 <p className="mt-2 text-sm text-slate-700">{insight}</p>

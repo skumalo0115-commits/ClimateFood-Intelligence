@@ -20,7 +20,7 @@ export default function Navbar() {
           href="/"
           className="flex items-center gap-2 justify-self-start whitespace-nowrap text-2xl font-semibold text-slate-900 md:text-3xl dark:text-slate-100"
         >
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-emerald-500/90 text-sm font-bold text-white shadow-sm">CFI</span>
+          <img src="/icon.svg" alt="ClimateFood Intelligence" className="h-10 w-10 rounded-2xl shadow-sm" />
           ClimateFood Intelligence
         </Link>
 

@@ -30,9 +30,9 @@ export default function PageHeader({ eyebrow, title, subtitle, backgroundImage, 
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">{eyebrow}</p>
-          <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">{title}</h1>
-          <p className="max-w-2xl text-lg text-slate-600">{subtitle}</p>
+          <p className={`text-xs font-semibold uppercase tracking-[0.35em] ${eyebrowClass}`}>{eyebrow}</p>
+          <h1 className={`text-4xl font-semibold md:text-5xl ${titleClass}`}>{title}</h1>
+          <p className={`max-w-2xl text-lg ${subtitleClass}`}>{subtitle}</p>
         </div>
       )}
     </SectionReveal>

@@ -9,7 +9,11 @@ const sans = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: 'ClimateFood Intelligence',
-  description: 'Climate and food analytics dashboard'
+  description: 'Climate and food analytics dashboard',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg'
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
