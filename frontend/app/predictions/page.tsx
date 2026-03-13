@@ -27,7 +27,12 @@ export default function PredictionsPage() {
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="left">
           <div className="mt-10">
-            <ChartCard title="Predicted yield scenarios" data={data} />
+            <ChartCard
+              title="Predicted yield scenarios"
+              chartKind="bar"
+              insight="Each bar is a scenario the model simulated. Bigger bars represent more optimistic yield outcomes under that scenario's climate and input assumptions."
+              data={data}
+            />
           </div>
         </SectionReveal>
       </section>

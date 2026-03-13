@@ -42,10 +42,10 @@ export default function DashboardPage() {
             <li>Backend: <code>OPENAQ_API_KEY=your_openaq_key</code> (required for air quality)</li>
             <li>Backend: <code>METEOSTAT_API_KEY=your_rapidapi_key</code> and <code>METEOSTAT_HOST=meteostat.p.rapidapi.com</code> (required for climate)</li>
             <li>Backend: <code>CO2_JSON_URL=https://owid-public.owid.io/data/co2/owid-co2-data.json</code></li>
-            <li>Backend: <code>CROPS_JSON_URL=https://api.worldbank.org/v2/country/ZAF/indicator/AG.YLD.CREL.KG?format=json&per_page=20000</code></li>
-            <li>Backend optional: <code>CO2_COUNTRIES=Germany,South Africa,Kenya,India</code></li>
-            <li>Backend optional: <code>CROPS_COUNTRY=ZAF</code> and <code>CROPS_INDICATOR=AG.YLD.CREL.KG</code></li>
-            <li>Backend optional location: <code>OPENAQ_LAT</code>/<code>OPENAQ_LON</code> and <code>METEOSTAT_LAT</code>/<code>METEOSTAT_LON</code></li>
+            <li>Backend: <code>CROPS_JSON_URL=https://api.worldbank.org/v2/country/ZAF/indicator/AG.YLD.MAIZ.KG?format=json&per_page=20000</code></li>
+            <li>Backend optional: <code>CO2_COUNTRIES=South Africa,Kenya,India,Germany</code></li>
+            <li>Backend optional: <code>CROPS_COUNTRY=ZAF</code> and <code>CROPS_INDICATOR=AG.YLD.MAIZ.KG</code></li>
+            <li>Backend optional location: <code>OPENAQ_LAT</code>/<code>OPENAQ_LON</code> and <code>METEOSTAT_LAT</code>/<code>METEOSTAT_LON</code> (default South Africa)</li>
           </ul>
         </div>
       )}

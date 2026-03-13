@@ -30,7 +30,12 @@ export default function ClimatePage() {
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="left">
           <div className="mt-10">
-            <ChartCard title="Temperature and precipitation" data={data} />
+            <ChartCard
+              title="Temperature & precipitation"
+              chartKind="line"
+              insight="The temperature and rainfall lines show the most recent 30 days for the focus coordinates. When the temperature line rises while precipitation drops, it signals drying conditions and crop stress risk."
+              data={data}
+            />
           </div>
         </SectionReveal>
       </section>

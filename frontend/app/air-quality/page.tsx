@@ -30,7 +30,12 @@ export default function AirQualityPage() {
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="right">
           <div className="mt-10">
-            <ChartCard title="PM10 and PM2.5 trends" data={data} />
+            <ChartCard
+              title="PM10 and PM2.5 trends"
+              chartKind="line"
+              insight="PM10 (coarse dust) and PM2.5 (fine particles) move differently when wind, traffic, or fires shift. A rising PM2.5 line is the clearest signal of health risk."
+              data={data}
+            />
           </div>
         </SectionReveal>
       </section>

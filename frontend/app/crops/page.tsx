@@ -12,7 +12,7 @@ export default function CropsPage() {
 
   const data = {
     labels: crops.map((d) => d.year),
-    datasets: [{ label: 'Production', data: crops.map((d) => d.value), borderColor: '#6366f1' }]
+    datasets: [{ label: 'Yield (kg/ha)', data: crops.map((d) => d.value), borderColor: '#6366f1' }]
   };
 
   return (
@@ -27,7 +27,12 @@ export default function CropsPage() {
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="left">
           <div className="mt-10">
-            <ChartCard title="Production trends" data={data} />
+            <ChartCard
+              title="Maize yield trends"
+              chartKind="bar"
+              insight="Each bar represents the maize yield per hectare for the selected country. Peaks mark strong seasons, while dips can indicate climate stress or input gaps."
+              data={data}
+            />
           </div>
         </SectionReveal>
       </section>

@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveBackendUrl } from '@/lib/backend';
 
 const allowedEndpoints = new Set(['climate', 'air-quality', 'crops', 'co2', 'predict']);
 
-function resolveBackendUrl() {
-  const raw =
-    process.env.NEXT_PUBLIC_BACKEND_URL ??
-    process.env.NEXT_PUBLIC_API_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    process.env.BACKEND_URL ??
-    'https://climatefood-backend.up.railway.app';
-
-  return `${raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`}`
-    .replace(/\/$/, '')
-    .replace(/\/api$/, '');
-}
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, max-age=300, stale-while-revalidate=900'
+};
 
 function fallbackData(endpoint: string) {
   const today = new Date();
@@ -36,19 +28,19 @@ function fallbackData(endpoint: string) {
 
   if (endpoint === 'crops') {
     return [
-      { year: 2021, item: 'Maize', value: 3.2 },
-      { year: 2022, item: 'Wheat', value: 2.7 },
-      { year: 2023, item: 'Rice', value: 3.8 },
-      { year: 2024, item: 'Soybeans', value: 2.4 }
+      { year: 2021, item: 'Maize yield (kg/ha)', value: 2400 },
+      { year: 2022, item: 'Maize yield (kg/ha)', value: 2600 },
+      { year: 2023, item: 'Maize yield (kg/ha)', value: 2550 },
+      { year: 2024, item: 'Maize yield (kg/ha)', value: 2700 }
     ];
   }
 
   if (endpoint === 'co2') {
     return [
-      { country: 'Germany', year: 2021, co_emissions_per_capita: 8.1 },
       { country: 'South Africa', year: 2021, co_emissions_per_capita: 7.2 },
       { country: 'Kenya', year: 2021, co_emissions_per_capita: 0.4 },
-      { country: 'India', year: 2021, co_emissions_per_capita: 1.9 }
+      { country: 'India', year: 2021, co_emissions_per_capita: 1.9 },
+      { country: 'Germany', year: 2021, co_emissions_per_capita: 8.1 }
     ];
   }
 
@@ -67,33 +59,39 @@ export async function GET(_: NextRequest, { params }: { params: { endpoint: stri
   const endpoint = params.endpoint;
 
   if (!allowedEndpoints.has(endpoint)) {
-    return NextResponse.json({ error: 'Unsupported endpoint' }, { status: 404 });
+    return NextResponse.json({ error: 'Unsupported endpoint' }, { status: 404, headers: CACHE_HEADERS });
   }
 
   const backendUrl = resolveBackendUrl();
 
   try {
     const response = await fetch(`${backendUrl}/api/${endpoint}`, {
-      cache: 'no-store'
+      next: { revalidate: 300 }
     });
 
     const body = await response.json();
     if (!response.ok) {
-      return NextResponse.json({
-        data: fallbackData(endpoint),
-        warning: `Backend request failed (${response.status}). Showing fallback data.`,
-        backendUrl,
-        details: body
-      });
+      return NextResponse.json(
+        {
+          data: fallbackData(endpoint),
+          warning: `Backend request failed (${response.status}). Showing fallback data.`,
+          backendUrl,
+          details: body
+        },
+        { headers: CACHE_HEADERS }
+      );
     }
 
-    return NextResponse.json(body);
+    return NextResponse.json(body, { headers: CACHE_HEADERS });
   } catch (error) {
-    return NextResponse.json({
-      data: fallbackData(endpoint),
-      warning: 'Backend unreachable. Showing fallback data.',
-      backendUrl,
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return NextResponse.json(
+      {
+        data: fallbackData(endpoint),
+        warning: 'Backend unreachable. Showing fallback data.',
+        backendUrl,
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { headers: CACHE_HEADERS }
+    );
   }
 }
