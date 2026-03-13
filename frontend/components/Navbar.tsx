@@ -32,6 +32,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const isDashboard = pathname?.startsWith('/dashboard');
+  const desktopLinks = pathname === '/' ? links.filter((link) => link.label !== 'Home') : links;
 
   useEffect(() => {
     setMenuOpen(false);
@@ -49,7 +50,7 @@ export default function Navbar() {
         </Link>
 
         <ul className="hidden items-center justify-center gap-1 justify-self-center xl:flex">
-          {links.map((link) => (
+          {desktopLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}

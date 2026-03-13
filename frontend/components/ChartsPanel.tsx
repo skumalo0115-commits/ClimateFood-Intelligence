@@ -13,7 +13,7 @@ import {
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 import { AnimatePresence, motion, useInView } from 'framer-motion';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
 import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
