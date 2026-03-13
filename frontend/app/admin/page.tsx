@@ -13,7 +13,7 @@ const INDICATOR_OPTIONS = [
 ];
 
 export default function AdminPage() {
-  const { config, loading, error, updateConfig } = useRuntimeConfig();
+  const { config, loading, error, warning, updateConfig } = useRuntimeConfig();
   const [status, setStatus] = useState('');
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -87,6 +87,7 @@ export default function AdminPage() {
           subtitle="Update country focus and coordinates without redeploying. Changes apply immediately to live API calls."
         />
 
+        {warning && <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{warning}</div>}
         {error && <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error}</div>}
         {status && <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">{status}</div>}
 

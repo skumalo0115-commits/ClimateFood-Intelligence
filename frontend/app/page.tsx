@@ -111,7 +111,7 @@ export default function HomePage() {
 
       <section className="section-container">
         <SectionReveal from="down">
-          <div className="glow-card grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+          <div className="glow-card relative grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Launch dashboard</p>
               <h2 className="mt-4 text-4xl font-semibold text-slate-900">The analytics command centre.</h2>
@@ -122,7 +122,7 @@ export default function HomePage() {
             <div className="flex items-center justify-start lg:justify-end">
               <Link
                 href="/dashboard"
-                className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:translate-y-[-2px] hover:bg-slate-800"
+                className="relative z-10 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:translate-y-[-2px] hover:bg-slate-800"
               >
                 Enter dashboard
               </Link>

@@ -153,6 +153,10 @@ h4 {
   opacity: 1;
 }
 
+.leaflet-container {
+  z-index: 0;
+}
+
 html.dark body {
   background: radial-gradient(circle at top, #020617 0%, #0b1220 40%, #020617 100%);
   color: #e2e8f0;

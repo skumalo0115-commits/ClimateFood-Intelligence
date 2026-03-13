@@ -8,7 +8,8 @@ const links = [
   { label: 'Emissions', href: '/emissions' },
   { label: 'Predictions', href: '/predictions' },
   { label: 'Map', href: '/map' },
-  { label: 'Admin', href: '/admin' }
+  { label: 'Admin', href: '/admin' },
+  { label: 'Dashboard', href: '/dashboard', isCta: true }
 ];
 
 export default function Navbar() {
@@ -28,7 +29,11 @@ export default function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="nav-pill whitespace-nowrap rounded-full px-3 py-2 text-[15px] font-semibold text-slate-700 transition dark:text-slate-200"
+                className={`nav-pill whitespace-nowrap rounded-full px-3 py-2 text-[15px] font-semibold transition dark:text-slate-200 ${
+                  link.isCta
+                    ? 'ml-2 border border-emerald-200 bg-emerald-50 text-emerald-900 hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200'
+                    : 'text-slate-700'
+                }`}
               >
                 {link.label}
               </Link>
@@ -36,12 +41,7 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <Link
-          href="/dashboard"
-          className="justify-self-end whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-[15px] font-semibold text-emerald-900 transition hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200"
-        >
-          Dashboard
-        </Link>
+        <div className="justify-self-end" />
       </nav>
     </header>
   );

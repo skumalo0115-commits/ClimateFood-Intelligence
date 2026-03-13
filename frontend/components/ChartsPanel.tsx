@@ -35,7 +35,7 @@ export const chartOptions = {
   elements: { line: { tension: 0.35 }, point: { radius: 2 } },
   plugins: {
     legend: { labels: { color: '#0f172a' } },
-    tooltip: { titleColor: '#0f172a', bodyColor: '#0f172a' }
+    tooltip: { titleColor: '#ffffff', bodyColor: '#86efac' }
   },
   scales: {
     x: {
@@ -79,6 +79,8 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title="Temperature & precipitation"
         chartKind="line"
         insight="The two lines track the last 30 days of temperature and rainfall at the focus coordinates. Watch for rising temperature with falling precipitation to spot drought pressure and timing shifts."
+        revealOnMount
+        delay={0.05}
         data={{
           labels: climate.map((d) => d.date),
           datasets: [
@@ -91,6 +93,8 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title="Air Quality (PM10 / PM2.5)"
         chartKind="line"
         insight="PM10 reflects coarse dust while PM2.5 captures finer particles that penetrate deeper into lungs. Diverging lines mean changing pollution sources or wind conditions."
+        revealOnMount
+        delay={0.18}
         data={{
           labels: airQuality.map((d) => d.date),
           datasets: [
@@ -142,18 +146,25 @@ export function ChartCard({
   data,
   chartKind = 'line',
   insight,
-  className = ''
+  className = '',
+  revealOnMount = false,
+  delay = 0
 }: {
   title: string;
   data: any;
   chartKind?: ChartKind;
   insight: string;
   className?: string;
+  revealOnMount?: boolean;
+  delay?: number;
 }) {
   const hasData = Array.isArray(data?.labels) && data.labels.length > 0;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { amount: 0.35 });
+  const revealMotion = revealOnMount
+    ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.6, ease: 'easeOut', delay } }
+    : { initial: false };
 
   const adjustedData = useMemo(() => {
     if (!data?.datasets) return data;
@@ -190,6 +201,7 @@ export function ChartCard({
   return (
     <motion.div
       ref={ref}
+      {...revealMotion}
       whileHover={{ y: -6 }}
       onClick={() => setOpen((prev) => !prev)}
       className={`relative flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${className}`}

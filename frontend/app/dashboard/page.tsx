@@ -67,11 +67,9 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <SectionReveal from="left">
-        <div className="mt-12">
-          <ChartsPanel climate={climate} airQuality={airQuality} crops={crops} co2={co2} predictions={predictions} />
-        </div>
-      </SectionReveal>
+      <div className="mt-12">
+        <ChartsPanel climate={climate} airQuality={airQuality} crops={crops} co2={co2} predictions={predictions} />
+      </div>
 
       <SectionReveal from="right">
         <MapPanel />

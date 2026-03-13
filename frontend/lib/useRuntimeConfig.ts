@@ -77,6 +77,7 @@ export function useRuntimeConfig() {
   const [config, setConfig] = useState<RuntimeConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [warning, setWarning] = useState('');
 
   const refreshConfig = useCallback(async (force = false) => {
     const cached = readCachedConfig();
@@ -91,18 +92,21 @@ export function useRuntimeConfig() {
     try {
       const response = await fetch('/api/config', { cache: 'no-store' });
       const body = await response.json();
-      if (!response.ok) {
+      const next = normalizeConfig(body?.data ?? body);
+      if (body?.warning) {
+        setWarning(body.warning);
+      } else {
+        setWarning('');
+      }
+      if (!response.ok && !body?.data) {
         throw new Error(body?.error || 'Unable to load config');
       }
-      const next = normalizeConfig(body?.data ?? body);
       writeCachedConfig(next);
       setConfig(next);
       setError('');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to load config';
-      if (!cached) {
-        setError(message);
-      }
+    } catch {
+      setWarning(cached ? 'Using saved config. Backend unreachable right now.' : 'Using default config until the backend is reachable.');
+      setError('');
     } finally {
       setLoading(false);
     }
@@ -115,6 +119,7 @@ export function useRuntimeConfig() {
   const updateConfig = useCallback(async (payload: Partial<RuntimeConfig>) => {
     setLoading(true);
     setError('');
+    setWarning('');
     try {
       const response = await fetch('/api/config', {
         method: 'POST',
@@ -138,5 +143,5 @@ export function useRuntimeConfig() {
     }
   }, []);
 
-  return { config, loading, error, refreshConfig, updateConfig };
+  return { config, loading, error, warning, refreshConfig, updateConfig };
 }

@@ -67,7 +67,7 @@ export default function Hero() {
               alt="Landscape"
               className="h-full w-full rounded-[28px] object-cover"
             />
-            <div className="absolute bottom-6 left-6 rounded-2xl bg-white/85 p-4 shadow-lg backdrop-blur">
+            <div className="absolute -top-6 left-6 z-10 rounded-2xl bg-white/85 p-4 shadow-lg backdrop-blur">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Predictive yield</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">+18.4%</p>
               <p className="text-sm text-slate-500">Projected season uplift</p>

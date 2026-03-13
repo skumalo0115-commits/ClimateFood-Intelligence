@@ -20,7 +20,7 @@ export default function MapPanel() {
   return (
     <div
       ref={ref}
-      className="relative mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
+      className="relative z-0 isolation-isolate mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
     >
       <motion.span
         initial={{ scaleX: 0, opacity: 0 }}
