@@ -58,13 +58,24 @@ export async function POST(request: NextRequest) {
     });
     const body = await response.json();
     if (!response.ok) {
-      return NextResponse.json({ error: 'Unable to update config', details: body }, { status: response.status, headers: CACHE_HEADERS });
+      return NextResponse.json(
+        {
+          data: payload,
+          warning: 'Backend update failed. Saved locally only.',
+          details: body
+        },
+        { headers: CACHE_HEADERS }
+      );
     }
     return NextResponse.json(body, { headers: CACHE_HEADERS });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Backend unreachable', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 502, headers: CACHE_HEADERS }
+      {
+        data: payload,
+        warning: 'Backend unreachable. Saved locally only.',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { headers: CACHE_HEADERS }
     );
   }
 }
