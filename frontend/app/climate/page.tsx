@@ -26,6 +26,8 @@ export default function ClimatePage() {
           eyebrow="Climate"
           title="Temperature and precipitation intelligence"
           subtitle="Detect season shifts, surface anomalies, and precipitation patterns with a clean, motion-driven view."
+          backgroundImage="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80"
+          tone="light"
         />
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="left">

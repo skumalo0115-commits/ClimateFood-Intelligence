@@ -23,6 +23,8 @@ export default function PredictionsPage() {
           eyebrow="Predictions"
           title="AI yield scenario modeling"
           subtitle="Compare outcomes across scenarios to keep plans resilient and adaptable."
+          backgroundImage="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80"
+          tone="dark"
         />
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="left">

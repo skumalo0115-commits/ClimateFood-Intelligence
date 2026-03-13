@@ -16,6 +16,8 @@ export default function MapPage() {
           eyebrow="Map"
           title="Geo intelligence canvas"
           subtitle="Navigate the world with spatial context layered on climate and food analytics."
+          backgroundImage="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=80"
+          tone="dark"
         />
         <SectionReveal from="down">
           <MapPanel />

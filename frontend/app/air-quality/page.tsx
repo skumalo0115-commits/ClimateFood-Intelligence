@@ -26,6 +26,8 @@ export default function AirQualityPage() {
           eyebrow="Air quality"
           title="Pollution visibility at a glance"
           subtitle="Track particulate concentrations alongside climate context to understand air health in a single narrative."
+          backgroundImage="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
+          tone="light"
         />
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="right">

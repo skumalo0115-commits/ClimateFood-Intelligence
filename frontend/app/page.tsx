@@ -129,6 +129,26 @@ export default function HomePage() {
             </div>
           </div>
         </SectionReveal>
+        <SectionReveal from="up">
+          <div className="glow-card relative mt-8 grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Admin guide</p>
+              <h2 className="mt-4 text-4xl font-semibold text-slate-900">How to use this platform</h2>
+              <p className="mt-4 text-lg text-slate-600">
+                Start with the Dashboard to see all signals at once, then open each section (Climate, Air Quality, Crops, Emissions, Predictions, Map)
+                for deeper detail. Use the Admin page to change the focus country and coordinates without redeploying the backend.
+              </p>
+            </div>
+            <div className="flex items-center justify-start lg:justify-end">
+              <Link
+                href="/admin"
+                className="relative z-10 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:translate-y-[-2px] hover:bg-slate-800"
+              >
+                Enter Admin
+              </Link>
+            </div>
+          </div>
+        </SectionReveal>
       </section>
     </main>
   );

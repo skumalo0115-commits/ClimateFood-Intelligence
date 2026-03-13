@@ -23,6 +23,8 @@ export default function CropsPage() {
           eyebrow="Crops"
           title="Crop production momentum"
           subtitle="Reveal yield trajectories and production shifts with a clean, animated line of sight."
+          backgroundImage="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80"
+          tone="light"
         />
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="left">

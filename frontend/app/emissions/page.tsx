@@ -34,6 +34,8 @@ export default function EmissionsPage() {
           eyebrow="Emissions"
           title="CO2 emissions clarity"
           subtitle="Understand emissions intensity and benchmark performance with animated trends."
+          backgroundImage="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+          tone="light"
         />
         <DataStatus loading={loading} error={error} />
         <SectionReveal from="right">

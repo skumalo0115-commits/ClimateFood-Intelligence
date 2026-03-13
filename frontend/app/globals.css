@@ -73,6 +73,7 @@ h4 {
   background: radial-gradient(circle at top, rgba(16, 185, 129, 0.18), transparent 60%);
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .glow-card:hover::before {
