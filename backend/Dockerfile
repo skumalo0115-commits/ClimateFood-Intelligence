@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY data ./data
+COPY start.py ./start.py
 
 ENV PORT=8000
 CMD ["python", "start.py"]

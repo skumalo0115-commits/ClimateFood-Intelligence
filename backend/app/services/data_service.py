@@ -32,7 +32,9 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_CROPS_CSV = BACKEND_DIR / 'data' / 'faostat_data.csv'
 FALLBACK_CROPS_CSV = BACKEND_DIR / 'data' / 'faostat_sample.csv'
 FALLBACK_CO2_CSV = BACKEND_DIR / 'data' / 'co2_emissions.csv'
-RUNTIME_CONFIG_PATH = BACKEND_DIR / 'data' / 'runtime_config.json'
+DEFAULT_RUNTIME_CONFIG_PATH = Path(os.getenv('RUNTIME_CONFIG_PATH', str(BACKEND_DIR / 'data' / 'runtime_config.json')))
+FALLBACK_RUNTIME_CONFIG_PATH = Path('/tmp/runtime_config.json')
+_ACTIVE_RUNTIME_CONFIG_PATH: Path | None = None
 
 _CACHE: dict[str, dict[str, object]] = {}
 
@@ -104,9 +106,40 @@ def _sanitize_runtime_config(payload: object):
     return base
 
 
+def _select_runtime_config_path():
+    global _ACTIVE_RUNTIME_CONFIG_PATH
+    if _ACTIVE_RUNTIME_CONFIG_PATH is not None:
+        return _ACTIVE_RUNTIME_CONFIG_PATH
+
+    for candidate in (DEFAULT_RUNTIME_CONFIG_PATH, FALLBACK_RUNTIME_CONFIG_PATH):
+        try:
+            candidate.parent.mkdir(parents=True, exist_ok=True)
+            candidate.touch(exist_ok=True)
+            _ACTIVE_RUNTIME_CONFIG_PATH = candidate
+            return candidate
+        except OSError:
+            continue
+
+    _ACTIVE_RUNTIME_CONFIG_PATH = FALLBACK_RUNTIME_CONFIG_PATH
+    return _ACTIVE_RUNTIME_CONFIG_PATH
+
+
 def _write_runtime_config(config: dict[str, object]):
-    RUNTIME_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    RUNTIME_CONFIG_PATH.write_text(json.dumps(config, indent=2), encoding='utf-8')
+    path = _select_runtime_config_path()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(config, indent=2), encoding='utf-8')
+        return True
+    except OSError:
+        fallback = FALLBACK_RUNTIME_CONFIG_PATH
+        try:
+            fallback.parent.mkdir(parents=True, exist_ok=True)
+            fallback.write_text(json.dumps(config, indent=2), encoding='utf-8')
+            global _ACTIVE_RUNTIME_CONFIG_PATH
+            _ACTIVE_RUNTIME_CONFIG_PATH = fallback
+            return True
+        except OSError:
+            return False
 
 
 def get_runtime_config():
@@ -115,14 +148,15 @@ def get_runtime_config():
         return cached
 
     raw = None
-    if RUNTIME_CONFIG_PATH.exists():
+    path = _select_runtime_config_path()
+    if path.exists():
         try:
-            raw = json.loads(RUNTIME_CONFIG_PATH.read_text(encoding='utf-8'))
+            raw = json.loads(path.read_text(encoding='utf-8'))
         except (OSError, json.JSONDecodeError):
             raw = None
 
     config = _sanitize_runtime_config(raw)
-    if not RUNTIME_CONFIG_PATH.exists() or raw is None:
+    if not path.exists() or raw is None:
         _write_runtime_config(config)
 
     _cache_set('runtime_config', config)
