@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
@@ -79,10 +79,10 @@ export function useDashboardData() {
     }
 
     const fetchEndpoint = async (endpoint: (typeof ENDPOINTS)[number]) => {
-      const response = await fetch(/api/data/, { cache: 'force-cache' });
+      const response = await fetch(`/api/data/${endpoint}`, { cache: 'force-cache' });
       const payload = (await response.json()) as ProxyPayload;
       if (!response.ok) {
-        throw new Error(payload.error || HTTP );
+        throw new Error(payload.error || `HTTP ${response.status}`);
       }
       return payload;
     };
