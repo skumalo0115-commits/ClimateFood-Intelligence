@@ -79,6 +79,7 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title="Temperature & precipitation"
         chartKind="line"
         insight="The two lines track the last 30 days of temperature and rainfall at the focus coordinates. Watch for rising temperature with falling precipitation to spot drought pressure and timing shifts."
+        autoInsight
         revealOnMount
         delay={0.05}
         data={{
@@ -93,6 +94,7 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title="Air Quality (PM10 / PM2.5)"
         chartKind="line"
         insight="PM10 reflects coarse dust while PM2.5 captures finer particles that penetrate deeper into lungs. Diverging lines mean changing pollution sources or wind conditions."
+        autoInsight
         revealOnMount
         delay={0.18}
         data={{
@@ -107,6 +109,7 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title="Maize Yield Trends"
         chartKind="bar"
         insight="Bars show maize yield per hectare across the available years. A steady climb suggests productivity gains, while sharp dips often line up with climate stress or input constraints."
+        autoInsight
         data={{
           labels: crops.map((d) => d.year),
           datasets: [{ label: 'Yield (kg/ha)', data: crops.map((d) => d.value), borderColor: '#6366f1' }]
@@ -116,6 +119,7 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title={`CO2 Emissions (per capita) - ${primaryCountry}`}
         chartKind="area"
         insight="This area line tracks per-capita CO2 for the selected country. The slope shows whether emissions intensity is accelerating or stabilizing relative to population."
+        autoInsight
         data={{
           labels: co2Series.map((d) => d.year),
           datasets: [
@@ -131,6 +135,7 @@ export default function ChartsPanel({ climate, airQuality, crops, co2, predictio
         title="AI Yield Predictions"
         chartKind="bar"
         insight="Scenario bars compare modelled yield outcomes under different climate and input assumptions. Taller bars indicate more optimistic yield scenarios."
+        autoInsight
         data={{
           labels: predictions.map((d) => `Scenario ${d.scenario}`),
           datasets: [{ label: 'Predicted yield', data: predictions.map((d) => d.predicted_yield), borderColor: '#f59e0b' }]
@@ -148,7 +153,8 @@ export function ChartCard({
   insight,
   className = '',
   revealOnMount = false,
-  delay = 0
+  delay = 0,
+  autoInsight = false
 }: {
   title: string;
   data: any;
@@ -157,6 +163,7 @@ export function ChartCard({
   className?: string;
   revealOnMount?: boolean;
   delay?: number;
+  autoInsight?: boolean;
 }) {
   const hasData = Array.isArray(data?.labels) && data.labels.length > 0;
   const [open, setOpen] = useState(false);
@@ -198,6 +205,87 @@ export function ChartCard({
     };
   }, [chartKind, data]);
 
+  const availableYears = useMemo(() => {
+    if (!Array.isArray(adjustedData?.labels)) return [];
+    const extractYear = (label: unknown) => {
+      if (typeof label === 'number' && Number.isFinite(label)) return Math.trunc(label);
+      if (typeof label === 'string') {
+        const match = label.match(/(19|20)\d{2}/);
+        if (match) return Number(match[0]);
+      }
+      return null;
+    };
+    const years = adjustedData.labels
+      .map((label: unknown) => extractYear(label))
+      .filter((value: number | null): value is number => value !== null);
+    return Array.from(new Set(years)).sort((a, b) => a - b);
+  }, [adjustedData]);
+
+  const [yearFrom, setYearFrom] = useState<number | ''>('');
+  const [yearTo, setYearTo] = useState<number | ''>('');
+
+  useEffect(() => {
+    if (availableYears.length >= 2) {
+      setYearFrom(availableYears[0]);
+      setYearTo(availableYears[availableYears.length - 1]);
+    } else {
+      setYearFrom('');
+      setYearTo('');
+    }
+  }, [availableYears]);
+
+  const filteredData = useMemo(() => {
+    if (!availableYears.length || yearFrom === '' || yearTo === '') return adjustedData;
+    const extractYear = (label: unknown) => {
+      if (typeof label === 'number' && Number.isFinite(label)) return Math.trunc(label);
+      if (typeof label === 'string') {
+        const match = label.match(/(19|20)\d{2}/);
+        if (match) return Number(match[0]);
+      }
+      return null;
+    };
+    const from = Math.min(Number(yearFrom), Number(yearTo));
+    const to = Math.max(Number(yearFrom), Number(yearTo));
+    const indices = adjustedData.labels
+      .map((label: unknown, index: number) => ({ index, year: extractYear(label) }))
+      .filter((entry: { index: number; year: number | null }) => entry.year !== null && entry.year >= from && entry.year <= to);
+
+    if (!indices.length) return adjustedData;
+
+    return {
+      ...adjustedData,
+      labels: indices.map((entry: { index: number }) => adjustedData.labels[entry.index]),
+      datasets: adjustedData.datasets.map((dataset: any) => ({
+        ...dataset,
+        data: indices.map((entry: { index: number }) => dataset.data[entry.index])
+      }))
+    };
+  }, [adjustedData, availableYears, yearFrom, yearTo]);
+
+  const generatedInsight = useMemo(() => {
+    if (!autoInsight) return insight;
+    if (!filteredData?.datasets?.length || !filteredData.labels?.length) {
+      return 'Not enough data points in the selected range yet.';
+    }
+    const datasetSummaries = filteredData.datasets.slice(0, 2).map((dataset: any) => {
+      const values = (dataset.data || []).filter((value: unknown) => typeof value === 'number') as number[];
+      if (values.length < 2) return `${dataset.label ?? 'Series'} has limited data.`;
+      const first = values[0];
+      const last = values[values.length - 1];
+      const change = last - first;
+      const pct = first !== 0 ? (change / first) * 100 : 0;
+      const direction = Math.abs(change) < 0.001 ? 'holding steady' : change > 0 ? 'rising' : 'falling';
+      return `${dataset.label ?? 'Series'} is ${direction}, moving from ${first.toFixed(2)} to ${last.toFixed(
+        2
+      )} (${pct.toFixed(1)}%).`;
+    });
+
+    const rangeNote =
+      availableYears.length >= 2 && yearFrom !== '' && yearTo !== '' ? ` Range: ${yearFrom}-${yearTo}.` : '';
+
+    return `${datasetSummaries.join(' ')}${rangeNote}`;
+  }, [autoInsight, filteredData, insight, availableYears.length, yearFrom, yearTo]);
+
   return (
     <motion.div
       ref={ref}
@@ -227,10 +315,31 @@ export function ChartCard({
         </button>
       </div>
 
+      {availableYears.length >= 2 && (
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Year range</span>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              value={yearFrom}
+              onChange={(event) => setYearFrom(event.target.value ? Number(event.target.value) : '')}
+              className="h-9 w-24 rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700"
+            />
+            <span className="text-xs text-slate-400">to</span>
+            <input
+              type="number"
+              value={yearTo}
+              onChange={(event) => setYearTo(event.target.value ? Number(event.target.value) : '')}
+              className="h-9 w-24 rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="mt-4 flex-1">
         {hasData ? (
           <div className="h-[280px]">
-            {chartKind === 'bar' ? <Bar data={adjustedData} options={chartOptions} /> : <Line data={adjustedData} options={chartOptions} />}
+            {chartKind === 'bar' ? <Bar data={filteredData} options={chartOptions} /> : <Line data={filteredData} options={chartOptions} />}
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-slate-500">
@@ -257,7 +366,7 @@ export function ChartCard({
               />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500">Insight</p>
-                <p className="mt-2 text-sm text-slate-700">{insight}</p>
+                <p className="mt-2 text-sm text-slate-700">{generatedInsight}</p>
               </div>
               <button
                 type="button"

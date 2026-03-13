@@ -49,6 +49,7 @@ export default function EmissionsPage() {
                 title={`CO2 emissions per capita - ${primaryCountry}`}
                 chartKind="area"
                 insight="The filled curve highlights how per-capita CO2 changes over time. A flattening curve signals stabilizing emissions intensity, while steeper slopes show acceleration."
+                autoInsight
                 data={data}
               />
             </div>

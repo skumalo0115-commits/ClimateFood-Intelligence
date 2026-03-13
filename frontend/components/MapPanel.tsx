@@ -91,6 +91,16 @@ export default function MapPanel() {
         transition={{ duration: 0.9, ease: 'easeOut' }}
         className="pointer-events-none absolute left-6 right-6 top-0 h-[2px] origin-left rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-amber-400"
       />
+      <div className="pointer-events-none absolute right-4 top-4 z-20 rounded-full border border-slate-200 bg-white/90 p-2 shadow-sm">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+          <circle cx="14" cy="14" r="12.5" fill="none" stroke="#0f172a" strokeOpacity="0.2" />
+          <path d="M14 5L17 14L14 23L11 14L14 5Z" fill="#10b981" />
+          <path d="M14 5L17 14H14V5Z" fill="#0f172a" />
+          <text x="14" y="7.5" textAnchor="middle" fontSize="6" fontWeight="700" fill="#0f172a">
+            N
+          </text>
+        </svg>
+      </div>
       <MapContainer
         center={[lat, lon]}
         zoom={5}

@@ -38,6 +38,7 @@ export default function CropsPage() {
                 title="Maize yield trends"
                 chartKind="bar"
                 insight="Each bar represents the maize yield per hectare for the selected country. Peaks mark strong seasons, while dips can indicate climate stress or input gaps."
+                autoInsight
                 data={data}
               />
             </div>

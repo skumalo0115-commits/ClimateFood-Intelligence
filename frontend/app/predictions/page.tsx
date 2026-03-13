@@ -37,6 +37,7 @@ export default function PredictionsPage() {
                 title="Predicted yield scenarios"
                 chartKind="bar"
                 insight="Each bar is a scenario the model simulated. Bigger bars represent more optimistic yield outcomes under that scenario's climate and input assumptions."
+                autoInsight
                 data={data}
               />
             </div>

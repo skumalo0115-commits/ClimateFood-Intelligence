@@ -41,6 +41,7 @@ export default function ClimatePage() {
                 title="Temperature & precipitation"
                 chartKind="line"
                 insight="The temperature and rainfall lines show the most recent 30 days for the focus coordinates. When the temperature line rises while precipitation drops, it signals drying conditions and crop stress risk."
+                autoInsight
                 data={data}
               />
             </div>

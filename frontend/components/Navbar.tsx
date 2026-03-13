@@ -39,7 +39,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur md:static md:top-auto dark:border-slate-800 dark:bg-slate-950/85">
-      <nav className="grid w-full grid-cols-[auto,1fr,auto] items-center gap-3 px-3 py-5 lg:px-5 xl:px-6">
+      <nav className="grid w-full grid-cols-[auto,1fr,auto] items-center gap-3 px-2 py-5 sm:px-4 lg:px-5 xl:px-6">
         <Link
           href="/"
           className="flex items-center gap-2 justify-self-start whitespace-nowrap text-2xl font-semibold text-slate-900 md:text-3xl dark:text-slate-100"

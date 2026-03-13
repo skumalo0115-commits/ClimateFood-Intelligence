@@ -41,6 +41,7 @@ export default function AirQualityPage() {
                 title="PM10 and PM2.5 trends"
                 chartKind="line"
                 insight="PM10 (coarse dust) and PM2.5 (fine particles) move differently when wind, traffic, or fires shift. A rising PM2.5 line is the clearest signal of health risk."
+                autoInsight
                 data={data}
               />
             </div>
