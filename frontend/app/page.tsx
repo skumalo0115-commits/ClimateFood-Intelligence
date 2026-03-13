@@ -135,8 +135,9 @@ export default function HomePage() {
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Admin guide</p>
               <h2 className="mt-4 text-4xl font-semibold text-slate-900">How to use this platform</h2>
               <p className="mt-4 text-lg text-slate-600">
-                Start with the Dashboard to see all signals at once, then open each section (Climate, Air Quality, Crops, Emissions, Predictions, Map)
-                for deeper detail. Use the Admin page to change the focus country and coordinates without redeploying the backend.
+                This website helps you understand how weather, air quality, crops, and emissions are changing in one place. Use the Dashboard for a
+                quick overview, then open each page to see simple charts and maps. If you want to look at another country or location, use the Admin
+                page to change it instantly.
               </p>
             </div>
             <div className="flex items-center justify-start lg:justify-end">

@@ -15,29 +15,35 @@ export default function PredictionsPage() {
     datasets: [{ label: 'Predicted yield', data: predictions.map((d) => d.predicted_yield), borderColor: '#f59e0b' }]
   };
 
+  const backgroundImage =
+    'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80';
+
   return (
-    <main>
-      <Navbar />
-      <section className="section-container">
-        <PageHeader
-          eyebrow="Predictions"
-          title="AI yield scenario modeling"
-          subtitle="Compare outcomes across scenarios to keep plans resilient and adaptable."
-          backgroundImage="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80"
-          tone="dark"
-        />
-        <DataStatus loading={loading} error={error} />
-        <SectionReveal from="left">
-          <div className="mt-10">
-            <ChartCard
-              title="Predicted yield scenarios"
-              chartKind="bar"
-              insight="Each bar is a scenario the model simulated. Bigger bars represent more optimistic yield outcomes under that scenario's climate and input assumptions."
-              data={data}
-            />
-          </div>
-        </SectionReveal>
-      </section>
+    <main className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
+      <div className="pointer-events-none absolute inset-0 bg-white/70" />
+      <div className="relative z-10">
+        <Navbar />
+        <section className="section-container">
+          <PageHeader
+            eyebrow="Predictions"
+            title="AI yield scenario modeling"
+            subtitle="Compare outcomes across scenarios to keep plans resilient and adaptable."
+            tone="dark"
+          />
+          <DataStatus loading={loading} error={error} />
+          <SectionReveal from="left">
+            <div className="mt-10">
+              <ChartCard
+                title="Predicted yield scenarios"
+                chartKind="bar"
+                insight="Each bar is a scenario the model simulated. Bigger bars represent more optimistic yield outcomes under that scenario's climate and input assumptions."
+                data={data}
+              />
+            </div>
+          </SectionReveal>
+        </section>
+      </div>
     </main>
   );
 }

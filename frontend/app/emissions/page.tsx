@@ -26,29 +26,35 @@ export default function EmissionsPage() {
     ]
   };
 
+  const backgroundImage =
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80';
+
   return (
-    <main>
-      <Navbar />
-      <section className="section-container">
-        <PageHeader
-          eyebrow="Emissions"
-          title="CO2 emissions clarity"
-          subtitle="Understand emissions intensity and benchmark performance with animated trends."
-          backgroundImage="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
-          tone="light"
-        />
-        <DataStatus loading={loading} error={error} />
-        <SectionReveal from="right">
-          <div className="mt-10">
-            <ChartCard
-              title={`CO2 emissions per capita - ${primaryCountry}`}
-              chartKind="area"
-              insight="The filled curve highlights how per-capita CO2 changes over time. A flattening curve signals stabilizing emissions intensity, while steeper slopes show acceleration."
-              data={data}
-            />
-          </div>
-        </SectionReveal>
-      </section>
+    <main className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }} />
+      <div className="pointer-events-none absolute inset-0 bg-slate-950/60" />
+      <div className="relative z-10">
+        <Navbar />
+        <section className="section-container">
+          <PageHeader
+            eyebrow="Emissions"
+            title="CO2 emissions clarity"
+            subtitle="Understand emissions intensity and benchmark performance with animated trends."
+            tone="light"
+          />
+          <DataStatus loading={loading} error={error} />
+          <SectionReveal from="right">
+            <div className="mt-10">
+              <ChartCard
+                title={`CO2 emissions per capita - ${primaryCountry}`}
+                chartKind="area"
+                insight="The filled curve highlights how per-capita CO2 changes over time. A flattening curve signals stabilizing emissions intensity, while steeper slopes show acceleration."
+                data={data}
+              />
+            </div>
+          </SectionReveal>
+        </section>
+      </div>
     </main>
   );
 }
