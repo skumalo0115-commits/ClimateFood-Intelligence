@@ -316,7 +316,7 @@ export function ChartCard({
         data: indices.map((entry: { index: number }) => dataset.data[entry.index])
       }))
     };
-  }, [adjustedData, availableYears, yearFrom, yearTo]);
+  }, [adjustedData, availableDates, availableYears, dateFrom, dateTo, yearFrom, yearTo]);
 
   const generatedInsight = useMemo(() => {
     if (!autoInsight) return insight;
