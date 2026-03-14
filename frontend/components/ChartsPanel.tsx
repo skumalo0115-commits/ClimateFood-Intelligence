@@ -262,6 +262,13 @@ export function ChartCard({
     }
   }, [availableDates]);
 
+  const resetDateRange = () => {
+    if (availableDates.length >= 2) {
+      setDateFrom(availableDates[0]);
+      setDateTo(availableDates[availableDates.length - 1]);
+    }
+  };
+
   const filteredData = useMemo(() => {
     const hasDateRange = availableDates.length >= 2 && dateFrom && dateTo;
     if (hasDateRange) {
@@ -392,6 +399,13 @@ export function ChartCard({
               onChange={(event) => setDateTo(event.target.value)}
               className="h-10 w-full max-w-[240px] rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700 sm:h-9 sm:w-40"
             />
+            <button
+              type="button"
+              onClick={resetDateRange}
+              className="h-9 rounded-full border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
+            >
+              Reset
+            </button>
           </div>
         </div>
       ) : availableYears.length >= 2 ? (
