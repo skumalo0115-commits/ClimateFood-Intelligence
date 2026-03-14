@@ -2,6 +2,7 @@
 
 **ClimateFood Intelligence** is a modern dashboard for understanding how climate, air quality, crops, and emissions change over time. It connects live APIs, transforms the data into clean visual stories, and lets you switch countries or coordinates from the Admin panel without redeploying.
 
+![Home hero preview](docs/screenshots/home-hero.png)
 
 
 ## ✨ Highlights
