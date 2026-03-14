@@ -2,7 +2,7 @@
 
 **ClimateFood Intelligence** is a modern dashboard for understanding how climate, air quality, crops, and emissions change over time. It connects live APIs, transforms the data into clean visual stories, and lets you switch countries or coordinates from the Admin panel without redeploying.
 
-![Dashboard preview](docs/screenshots/dashboard.png)
+
 
 ## ✨ Highlights
 - Live climate, air‑quality, crop, emissions, and AI prediction signals
@@ -76,9 +76,9 @@ Backend:
 3. Deploy frontend and set `NEXT_PUBLIC_BACKEND_URL`
 
 ## 🛠️ Troubleshooting
-- **Backend returns 502:** Check backend logs and ensure it starts (`start.py` must be in the container).
-- **Admin save fails:** Verify backend `/api/config` is responding and writable.
-- **Charts not updating:** Clear dashboard cache and refresh after admin update.
+- **Backend returns 502:** Check backend logs and ensure it starts (`start.py` must be in the container)
+- **Admin save fails:** Verify backend `/api/config` is responding and writable
+- **Charts not updating:** Clear dashboard cache and refresh after admin update
 
 ---
 
