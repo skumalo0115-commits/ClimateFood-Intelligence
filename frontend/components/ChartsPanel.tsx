@@ -218,7 +218,7 @@ export function ChartCard({
     const years = adjustedData.labels
       .map((label: unknown) => extractYear(label))
       .filter((value: number | null): value is number => value !== null);
-    return Array.from(new Set(years)).sort((a, b) => a - b);
+    return Array.from(new Set<number>(years)).sort((a: number, b: number) => a - b);
   }, [adjustedData]);
 
   const [yearFrom, setYearFrom] = useState<number | ''>('');
