@@ -224,6 +224,24 @@ export function ChartCard({
   const [yearFrom, setYearFrom] = useState<number | ''>('');
   const [yearTo, setYearTo] = useState<number | ''>('');
 
+  const availableDates = useMemo(() => {
+    if (!Array.isArray(adjustedData?.labels)) return [];
+    const dates = adjustedData.labels
+      .map((label: unknown) => {
+        if (typeof label !== 'string') return null;
+        if (!label.includes('-')) return null;
+        const iso = label.split('T')[0];
+        const parsed = new Date(iso);
+        if (Number.isNaN(parsed.getTime())) return null;
+        return iso;
+      })
+      .filter((value: string | null): value is string => value !== null);
+    return Array.from(new Set<string>(dates)).sort();
+  }, [adjustedData]);
+
+  const [dateFrom, setDateFrom] = useState<string>('');
+  const [dateTo, setDateTo] = useState<string>('');
+
   useEffect(() => {
     if (availableYears.length >= 2) {
       setYearFrom(availableYears[0]);
@@ -234,7 +252,45 @@ export function ChartCard({
     }
   }, [availableYears]);
 
+  useEffect(() => {
+    if (availableDates.length >= 2) {
+      setDateFrom(availableDates[0]);
+      setDateTo(availableDates[availableDates.length - 1]);
+    } else {
+      setDateFrom('');
+      setDateTo('');
+    }
+  }, [availableDates]);
+
   const filteredData = useMemo(() => {
+    const hasDateRange = availableDates.length >= 2 && dateFrom && dateTo;
+    if (hasDateRange) {
+      const from = dateFrom <= dateTo ? dateFrom : dateTo;
+      const to = dateFrom <= dateTo ? dateTo : dateFrom;
+      const indices = adjustedData.labels
+        .map((label: unknown, index: number) => {
+          if (typeof label !== 'string') return null;
+          const iso = label.split('T')[0];
+          if (!iso.includes('-')) return null;
+          return { index, iso };
+        })
+        .filter((entry: { index: number; iso: string } | null) => {
+          if (!entry) return false;
+          return entry.iso >= from && entry.iso <= to;
+        }) as { index: number; iso: string }[];
+
+      if (!indices.length) return adjustedData;
+
+      return {
+        ...adjustedData,
+        labels: indices.map((entry: { index: number }) => adjustedData.labels[entry.index]),
+        datasets: adjustedData.datasets.map((dataset: any) => ({
+          ...dataset,
+          data: indices.map((entry: { index: number }) => dataset.data[entry.index])
+        }))
+      };
+    }
+
     if (!availableYears.length || yearFrom === '' || yearTo === '') return adjustedData;
     const extractYear = (label: unknown) => {
       if (typeof label === 'number' && Number.isFinite(label)) return Math.trunc(label);
@@ -280,11 +336,15 @@ export function ChartCard({
       )} (${pct.toFixed(1)}%).`;
     });
 
-    const rangeNote =
-      availableYears.length >= 2 && yearFrom !== '' && yearTo !== '' ? ` Range: ${yearFrom}-${yearTo}.` : '';
+    const hasDateRange = availableDates.length >= 2 && dateFrom && dateTo;
+    const rangeNote = hasDateRange
+      ? ` Range: ${dateFrom} to ${dateTo}.`
+      : availableYears.length >= 2 && yearFrom !== '' && yearTo !== ''
+      ? ` Range: ${yearFrom}-${yearTo}.`
+      : '';
 
     return `${datasetSummaries.join(' ')}${rangeNote}`;
-  }, [autoInsight, filteredData, insight, availableYears.length, yearFrom, yearTo]);
+  }, [autoInsight, filteredData, insight, availableDates.length, availableYears.length, dateFrom, dateTo, yearFrom, yearTo]);
 
   return (
     <motion.div
@@ -315,7 +375,26 @@ export function ChartCard({
         </button>
       </div>
 
-      {availableYears.length >= 2 && (
+      {availableDates.length >= 2 ? (
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Date range</span>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(event) => setDateFrom(event.target.value)}
+              className="h-9 w-40 rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700"
+            />
+            <span className="text-xs text-slate-400">to</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(event) => setDateTo(event.target.value)}
+              className="h-9 w-40 rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700"
+            />
+          </div>
+        </div>
+      ) : availableYears.length >= 2 ? (
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Year range</span>
           <div className="flex items-center gap-2">
@@ -334,7 +413,7 @@ export function ChartCard({
             />
           </div>
         </div>
-      )}
+      ) : null}
 
       <div className="mt-4 flex-1">
         {hasData ? (

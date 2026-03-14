@@ -13,6 +13,10 @@
   --accent-3: #f59e0b;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: radial-gradient(circle at top, #ffffff 0%, #f1f5f9 40%, #f8f7f2 100%);
   color: var(--text);
@@ -167,6 +171,12 @@ h4 {
   body {
     overflow-x: hidden;
     overscroll-behavior-x: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
