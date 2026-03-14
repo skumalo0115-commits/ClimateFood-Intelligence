@@ -378,19 +378,19 @@ export function ChartCard({
       {availableDates.length >= 2 ? (
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Date range</span>
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div className="flex w-full flex-col items-center gap-2 sm:w-auto sm:flex-row sm:items-center">
             <input
               type="date"
               value={dateFrom}
               onChange={(event) => setDateFrom(event.target.value)}
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700 sm:h-9 sm:w-40"
+              className="h-10 w-full max-w-[240px] rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700 sm:h-9 sm:w-40"
             />
-            <span className="hidden text-xs text-slate-400 sm:inline">to</span>
+            <span className="text-xs text-slate-400">to</span>
             <input
               type="date"
               value={dateTo}
               onChange={(event) => setDateTo(event.target.value)}
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700 sm:h-9 sm:w-40"
+              className="h-10 w-full max-w-[240px] rounded-xl border border-slate-200 bg-white px-2 text-sm text-slate-700 sm:h-9 sm:w-40"
             />
           </div>
         </div>
