@@ -5,7 +5,6 @@ import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaf
 import 'leaflet/dist/leaflet.css';
 import { motion, useInView } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-import CountryBadge from '@/components/CountryBadge';
 import type { RuntimeConfig } from '@/lib/runtimeConfigShared';
 
 interface Props {
@@ -97,10 +96,7 @@ export default function MapPanel({ config }: Props) {
       />
       <div className="relative z-10 flex flex-wrap items-start justify-between gap-4 px-6 pb-0 pt-6">
         <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h3 className="text-lg font-semibold text-slate-900">Live Focus Map</h3>
-            <CountryBadge country={config.country ?? 'South Africa'} />
-          </div>
+          <h3 className="text-lg font-semibold text-slate-900">Live Focus Map</h3>
           <p className="mt-1 text-sm text-slate-600">The map pin marks the active country focus used for climate and air quality lookups.</p>
         </div>
       </div>

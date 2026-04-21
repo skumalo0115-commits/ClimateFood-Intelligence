@@ -1,6 +1,5 @@
 'use client';
 
-import CountryBadge from '@/components/CountryBadge';
 import SectionReveal from '@/components/SectionReveal';
 
 interface Props {
@@ -9,10 +8,9 @@ interface Props {
   subtitle: string;
   backgroundImage?: string;
   tone?: 'light' | 'dark';
-  country?: string;
 }
 
-export default function PageHeader({ eyebrow, title, subtitle, backgroundImage, tone = 'dark', country }: Props) {
+export default function PageHeader({ eyebrow, title, subtitle, backgroundImage, tone = 'dark' }: Props) {
   const isLight = tone === 'light';
   const eyebrowClass = isLight ? 'text-emerald-200' : 'text-emerald-600';
   const titleClass = isLight ? 'text-white' : 'text-slate-900';
@@ -26,20 +24,14 @@ export default function PageHeader({ eyebrow, title, subtitle, backgroundImage, 
           <div className={`absolute inset-0 ${isLight ? 'bg-slate-950/55' : 'bg-white/70'}`} />
           <div className="relative z-10 flex flex-col gap-3 px-8 py-10 md:px-12">
             <p className={`text-xs font-semibold uppercase tracking-[0.35em] ${eyebrowClass}`}>{eyebrow}</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className={`text-4xl font-semibold md:text-5xl ${titleClass}`}>{title}</h1>
-              {country ? <CountryBadge country={country} tone={isLight ? 'dark' : 'light'} /> : null}
-            </div>
+            <h1 className={`text-4xl font-semibold md:text-5xl ${titleClass}`}>{title}</h1>
             <p className={`max-w-2xl text-lg ${subtitleClass}`}>{subtitle}</p>
           </div>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           <p className={`text-xs font-semibold uppercase tracking-[0.35em] ${eyebrowClass}`}>{eyebrow}</p>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className={`text-4xl font-semibold md:text-5xl ${titleClass}`}>{title}</h1>
-            {country ? <CountryBadge country={country} tone={isLight ? 'dark' : 'light'} /> : null}
-          </div>
+          <h1 className={`text-4xl font-semibold md:text-5xl ${titleClass}`}>{title}</h1>
           <p className={`max-w-2xl text-lg ${subtitleClass}`}>{subtitle}</p>
         </div>
       )}

@@ -1,7 +1,6 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import CountryFocusCard from '@/components/CountryFocusCard';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
 import { ChartCard } from '@/components/ChartsPanel';
@@ -11,7 +10,7 @@ import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 export default function ClimatePage() {
   const { climate, loading, error } = useDashboardData();
-  const { config, loading: configLoading, updateConfig } = useRuntimeConfig();
+  const { config } = useRuntimeConfig();
   const selectedCountry = config.country ?? 'South Africa';
 
   const data = {
@@ -34,18 +33,15 @@ export default function ClimatePage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Climate"
-            title="Temperature and precipitation intelligence"
+            title={`Temperature and precipitation intelligence ${selectedCountry}`}
             subtitle="Detect season shifts, surface anomalies, and precipitation patterns with a clean, motion-driven view."
             tone="light"
-            country={selectedCountry}
           />
-          <CountryFocusCard config={config} loading={configLoading} updateConfig={updateConfig} />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">
             <div className="mt-10">
               <ChartCard
                 title="Temperature & precipitation"
-                country={selectedCountry}
                 chartKind="line"
                 insight="The temperature and rainfall lines show the most recent 30 days for the focus coordinates. When the temperature line rises while precipitation drops, it signals drying conditions and crop stress risk."
                 autoInsight

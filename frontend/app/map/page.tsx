@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
-import CountryFocusCard from '@/components/CountryFocusCard';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
 import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
@@ -10,7 +9,7 @@ import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 const MapPanel = dynamic(() => import('@/components/MapPanel'), { ssr: false });
 
 export default function MapPage() {
-  const { config, loading, updateConfig } = useRuntimeConfig();
+  const { config } = useRuntimeConfig();
   const selectedCountry = config.country ?? 'South Africa';
   const backgroundImage =
     'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=80';
@@ -23,12 +22,10 @@ export default function MapPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Map"
-            title="Geo intelligence canvas"
+            title={`Geo intelligence canvas ${selectedCountry}`}
             subtitle="Navigate the world with spatial context layered on climate and food analytics."
             tone="dark"
-            country={selectedCountry}
           />
-          <CountryFocusCard config={config} loading={loading} updateConfig={updateConfig} />
           <SectionReveal from="down">
             <MapPanel config={config} />
           </SectionReveal>

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
-import { getAllowedCountryPresets, getCountryPreset, SUPPORTED_COUNTRY_NAMES } from '@/lib/countryPresets';
+import { getCountryPreset, getSupportedCountryPresets, SUPPORTED_COUNTRY_NAMES } from '@/lib/countryPresets';
 import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 const INDICATOR_OPTIONS = [
@@ -57,20 +57,7 @@ export default function AdminPage() {
     [form.co2_countries]
   );
 
-  const allowedCountryOptions = useMemo(
-    () =>
-      getAllowedCountryPresets({
-        country: form.country || config.country,
-        country_code: form.country_code || config.country_code,
-        lat: Number(form.lat) || config.lat,
-        lon: Number(form.lon) || config.lon,
-        aq_radius: Number(form.aq_radius) || config.aq_radius,
-        crops_indicator: form.crops_indicator || config.crops_indicator,
-        crops_country: form.crops_country || config.crops_country,
-        co2_countries: parsedAllowedCountries.length ? parsedAllowedCountries : config.co2_countries
-      }),
-    [config, form, parsedAllowedCountries]
-  );
+  const availableCountryOptions = useMemo(() => getSupportedCountryPresets(), []);
 
   const onCountrySelect = (countryName: string) => {
     const selected = getCountryPreset(countryName, {
@@ -89,15 +76,24 @@ export default function AdminPage() {
       return;
     }
 
-    setForm((prev) => ({
-      ...prev,
-      country: selected.country,
-      country_code: selected.country_code,
-      lat: String(selected.lat),
-      lon: String(selected.lon),
-      aq_radius: String(selected.aq_radius),
-      crops_country: selected.crops_country
-    }));
+    setForm((prev) => {
+      const existingCountries = prev.co2_countries
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+      const nextAllowedCountries = Array.from(new Set([...existingCountries, selected.country]));
+
+      return {
+        ...prev,
+        country: selected.country,
+        country_code: selected.country_code,
+        lat: String(selected.lat),
+        lon: String(selected.lon),
+        aq_radius: String(selected.aq_radius),
+        crops_country: selected.crops_country,
+        co2_countries: nextAllowedCountries.join(', ')
+      };
+    });
   };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -140,7 +136,6 @@ export default function AdminPage() {
             title="Live location controls"
             subtitle="Update country focus and coordinates without redeploying. Changes apply immediately to live API calls."
             tone="light"
-            country={form.country || config.country}
           />
 
         {warning && <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{warning}</div>}
@@ -151,13 +146,13 @@ export default function AdminPage() {
           <form onSubmit={onSubmit} className="mt-10 grid gap-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-semibold text-slate-700">
-                Selected country
+                Select country
                 <select
                   value={form.country}
                   onChange={(event) => onCountrySelect(event.target.value)}
                   className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900"
                 >
-                  {allowedCountryOptions.map((country) => (
+                  {availableCountryOptions.map((country) => (
                     <option key={country.country} value={country.country}>
                       {country.country}
                     </option>
@@ -234,7 +229,7 @@ export default function AdminPage() {
                 className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900"
               />
               <span className="text-xs font-normal text-slate-500">
-                Supported presets: {SUPPORTED_COUNTRY_NAMES.join(', ')}. The dropdown only shows the countries that are currently allowed.
+                Supported presets: {SUPPORTED_COUNTRY_NAMES.join(', ')}. Choosing a country here will also add it to the allowed list automatically.
               </span>
             </label>
 

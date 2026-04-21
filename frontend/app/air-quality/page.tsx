@@ -1,7 +1,6 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import CountryFocusCard from '@/components/CountryFocusCard';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
 import { ChartCard } from '@/components/ChartsPanel';
@@ -11,7 +10,7 @@ import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 export default function AirQualityPage() {
   const { airQuality, loading, error } = useDashboardData();
-  const { config, loading: configLoading, updateConfig } = useRuntimeConfig();
+  const { config } = useRuntimeConfig();
   const selectedCountry = config.country ?? 'South Africa';
 
   const data = {
@@ -34,18 +33,15 @@ export default function AirQualityPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Air quality"
-            title="Pollution visibility at a glance"
+            title={`Pollution visibility at a glance ${selectedCountry}`}
             subtitle="Track particulate concentrations alongside climate context to understand air health in a single narrative."
             tone="light"
-            country={selectedCountry}
           />
-          <CountryFocusCard config={config} loading={configLoading} updateConfig={updateConfig} />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="right">
             <div className="mt-10">
               <ChartCard
                 title="PM10 and PM2.5 trends"
-                country={selectedCountry}
                 chartKind="line"
                 insight="PM10 (coarse dust) and PM2.5 (fine particles) move differently when wind, traffic, or fires shift. A rising PM2.5 line is the clearest signal of health risk."
                 autoInsight

@@ -1,7 +1,6 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import CountryFocusCard from '@/components/CountryFocusCard';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
 import { ChartCard } from '@/components/ChartsPanel';
@@ -11,7 +10,7 @@ import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 export default function PredictionsPage() {
   const { predictions, loading, error } = useDashboardData();
-  const { config, loading: configLoading, updateConfig } = useRuntimeConfig();
+  const { config } = useRuntimeConfig();
   const selectedCountry = config.country ?? 'South Africa';
 
   const data = {
@@ -30,18 +29,15 @@ export default function PredictionsPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Predictions"
-            title="AI yield scenario modeling"
+            title={`AI yield scenario modeling ${selectedCountry}`}
             subtitle="Compare outcomes across scenarios to keep plans resilient and adaptable."
             tone="dark"
-            country={selectedCountry}
           />
-          <CountryFocusCard config={config} loading={configLoading} updateConfig={updateConfig} />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">
             <div className="mt-10">
               <ChartCard
                 title="Predicted yield scenarios"
-                country={selectedCountry}
                 chartKind="bar"
                 insight="Each bar is a scenario the model simulated. Bigger bars represent more optimistic yield outcomes under that scenario's climate and input assumptions."
                 autoInsight

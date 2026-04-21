@@ -3,8 +3,6 @@
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import ChartsPanel from '@/components/ChartsPanel';
-import CountryBadge from '@/components/CountryBadge';
-import CountryFocusCard from '@/components/CountryFocusCard';
 import DataStatus from '@/components/DataStatus';
 import SectionReveal from '@/components/SectionReveal';
 import { useDashboardData } from '@/lib/useDashboardData';
@@ -14,7 +12,7 @@ const MapPanel = dynamic(() => import('@/components/MapPanel'), { ssr: false });
 
 export default function DashboardPage() {
   const { climate, airQuality, crops, co2, predictions, loading, error } = useDashboardData();
-  const { config, loading: configLoading, updateConfig } = useRuntimeConfig();
+  const { config } = useRuntimeConfig();
   const selectedCountry = config.country ?? 'South Africa';
   const backgroundImage =
     'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80';
@@ -35,17 +33,13 @@ export default function DashboardPage() {
       <SectionReveal from="up">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Dashboard</p>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">Interactive Analytics Command Centre</h1>
-            <CountryBadge country={selectedCountry} />
-          </div>
+          <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">{`Interactive Analytics Command Centre ${selectedCountry}`}</h1>
           <p className="max-w-2xl text-lg text-slate-600">
             Monitor climate signals, air quality, crop performance, and AI yield scenarios with motion-rich insights.
           </p>
         </div>
       </SectionReveal>
 
-      <CountryFocusCard config={config} loading={configLoading} updateConfig={updateConfig} />
       <DataStatus loading={loading} error={error} />
 
       {error && (

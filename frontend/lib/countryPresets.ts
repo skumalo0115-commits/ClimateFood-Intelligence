@@ -41,6 +41,110 @@ const COUNTRY_PRESETS: Record<string, CountryPreset> = {
     lon: 13.405,
     aq_radius: 15000,
     crops_country: 'DEU'
+  },
+  Nigeria: {
+    country: 'Nigeria',
+    country_code: 'NGA',
+    lat: 9.0765,
+    lon: 7.3986,
+    aq_radius: 15000,
+    crops_country: 'NGA'
+  },
+  Egypt: {
+    country: 'Egypt',
+    country_code: 'EGY',
+    lat: 30.0444,
+    lon: 31.2357,
+    aq_radius: 15000,
+    crops_country: 'EGY'
+  },
+  Ethiopia: {
+    country: 'Ethiopia',
+    country_code: 'ETH',
+    lat: 9.032,
+    lon: 38.7469,
+    aq_radius: 15000,
+    crops_country: 'ETH'
+  },
+  Tanzania: {
+    country: 'Tanzania',
+    country_code: 'TZA',
+    lat: -6.163,
+    lon: 35.7516,
+    aq_radius: 15000,
+    crops_country: 'TZA'
+  },
+  Uganda: {
+    country: 'Uganda',
+    country_code: 'UGA',
+    lat: 0.3476,
+    lon: 32.5825,
+    aq_radius: 15000,
+    crops_country: 'UGA'
+  },
+  Brazil: {
+    country: 'Brazil',
+    country_code: 'BRA',
+    lat: -15.7939,
+    lon: -47.8828,
+    aq_radius: 15000,
+    crops_country: 'BRA'
+  },
+  Mexico: {
+    country: 'Mexico',
+    country_code: 'MEX',
+    lat: 19.4326,
+    lon: -99.1332,
+    aq_radius: 15000,
+    crops_country: 'MEX'
+  },
+  'United States': {
+    country: 'United States',
+    country_code: 'USA',
+    lat: 38.9072,
+    lon: -77.0369,
+    aq_radius: 15000,
+    crops_country: 'USA'
+  },
+  Canada: {
+    country: 'Canada',
+    country_code: 'CAN',
+    lat: 45.4215,
+    lon: -75.6972,
+    aq_radius: 15000,
+    crops_country: 'CAN'
+  },
+  France: {
+    country: 'France',
+    country_code: 'FRA',
+    lat: 48.8566,
+    lon: 2.3522,
+    aq_radius: 15000,
+    crops_country: 'FRA'
+  },
+  China: {
+    country: 'China',
+    country_code: 'CHN',
+    lat: 39.9042,
+    lon: 116.4074,
+    aq_radius: 15000,
+    crops_country: 'CHN'
+  },
+  Japan: {
+    country: 'Japan',
+    country_code: 'JPN',
+    lat: 35.6762,
+    lon: 139.6503,
+    aq_radius: 15000,
+    crops_country: 'JPN'
+  },
+  Australia: {
+    country: 'Australia',
+    country_code: 'AUS',
+    lat: -35.2809,
+    lon: 149.13,
+    aq_radius: 15000,
+    crops_country: 'AUS'
   }
 };
 
@@ -63,6 +167,10 @@ export function getCountryPreset(countryName: string, config?: RuntimeConfig): C
   }
 
   return COUNTRY_PRESETS[countryName] ?? null;
+}
+
+export function getSupportedCountryPresets(): CountryPreset[] {
+  return SUPPORTED_COUNTRY_NAMES.map((countryName) => COUNTRY_PRESETS[countryName]);
 }
 
 export function getAllowedCountryPresets(config: RuntimeConfig): CountryPreset[] {
