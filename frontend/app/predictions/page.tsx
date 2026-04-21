@@ -29,9 +29,10 @@ export default function PredictionsPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Predictions"
-            title={`AI yield scenario modeling ${selectedCountry}`}
+            title="AI yield scenario modeling"
             subtitle="Compare outcomes across scenarios to keep plans resilient and adaptable."
             tone="dark"
+            country={selectedCountry}
           />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">

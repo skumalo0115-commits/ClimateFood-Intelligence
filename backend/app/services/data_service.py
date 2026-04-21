@@ -26,11 +26,12 @@ METEOSTAT_API_KEY = os.getenv('METEOSTAT_API_KEY', '')
 METEOSTAT_HOST = os.getenv('METEOSTAT_HOST', 'meteostat.p.rapidapi.com')
 METEOSTAT_LAT = float(os.getenv('METEOSTAT_LAT', '-26.2041'))
 METEOSTAT_LON = float(os.getenv('METEOSTAT_LON', '28.0473'))
+OPEN_METEO_ARCHIVE_URL = os.getenv('OPEN_METEO_ARCHIVE_URL', 'https://archive-api.open-meteo.com/v1/archive')
+OPEN_METEO_AIR_QUALITY_URL = os.getenv('OPEN_METEO_AIR_QUALITY_URL', 'https://air-quality-api.open-meteo.com/v1/air-quality')
 
 REPO_DIR = Path(__file__).resolve().parents[3]
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_CROPS_CSV = BACKEND_DIR / 'data' / 'faostat_data.csv'
-FALLBACK_CROPS_CSV = BACKEND_DIR / 'data' / 'faostat_sample.csv'
 FALLBACK_CO2_CSV = BACKEND_DIR / 'data' / 'co2_emissions.csv'
 DEFAULT_RUNTIME_CONFIG_PATH = Path(os.getenv('RUNTIME_CONFIG_PATH', str(BACKEND_DIR / 'data' / 'runtime_config.json')))
 FALLBACK_RUNTIME_CONFIG_PATH = Path('/tmp/runtime_config.json')
@@ -50,6 +51,30 @@ def _cache_get(key: str, ttl: int):
 
 def _cache_set(key: str, data: object):
     _CACHE[key] = {'time': time.time(), 'data': data}
+
+
+def _dedupe_strings(values: list[object]):
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for value in values:
+        item = str(value).strip()
+        if not item:
+            continue
+        marker = item.casefold()
+        if marker in seen:
+            continue
+        seen.add(marker)
+        deduped.append(item)
+    return deduped
+
+
+def _coerce_float(value: object):
+    try:
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _default_runtime_config():
@@ -103,6 +128,7 @@ def _sanitize_runtime_config(payload: object):
         if co2_list:
             base['co2_countries'] = co2_list
 
+    base['co2_countries'] = _dedupe_strings([base['country'], *(base.get('co2_countries') or [])])
     return base
 
 
@@ -207,36 +233,80 @@ def _meteostat_headers():
     return {'X-RapidAPI-Key': METEOSTAT_API_KEY, 'X-RapidAPI-Host': METEOSTAT_HOST}
 
 
-def _fallback_climate_data():
-    today = datetime.utcnow().date()
-    return [
-        {
-            'date': (today - timedelta(days=idx)).isoformat(),
-            'temperature': round(17 + (idx % 8) * 0.9, 2),
-            'precipitation': round((idx % 6) * 1.4, 2),
-        }
-        for idx in range(30, 0, -1)
-    ]
-
-
-def _fallback_air_quality():
-    today = datetime.utcnow().replace(minute=0, second=0, microsecond=0)
-    return [
-        {
-            'date': (today - timedelta(hours=idx)).isoformat(),
-            'pm10': round(18 + (idx % 7) * 1.8, 2),
-            'pm2_5': round(8 + (idx % 5) * 1.1, 2),
-        }
-        for idx in range(72, 0, -1)
-    ]
-
-
 def _normalize_datetime(value: object):
     if isinstance(value, dict):
         return value.get('utc') or value.get('local')
     if isinstance(value, str):
         return value
     return None
+
+
+def _fetch_open_meteo_climate(lat: float, lon: float):
+    end_date = datetime.utcnow().date() - timedelta(days=1)
+    start_date = end_date - timedelta(days=29)
+    payload = _safe_get_json(
+        OPEN_METEO_ARCHIVE_URL,
+        params={
+            'latitude': lat,
+            'longitude': lon,
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat(),
+            'daily': 'temperature_2m_mean,precipitation_sum',
+            'timezone': 'auto',
+        },
+    )
+    daily = payload.get('daily', {}) if isinstance(payload, dict) else {}
+    result: list[dict[str, object]] = []
+    for date_value, temp, precipitation in zip(
+        daily.get('time') or [],
+        daily.get('temperature_2m_mean') or [],
+        daily.get('precipitation_sum') or [],
+    ):
+        temp_value = _coerce_float(temp)
+        precipitation_value = _coerce_float(precipitation)
+        if date_value is None or temp_value is None or precipitation_value is None:
+            continue
+        result.append(
+            {
+                'date': str(date_value),
+                'temperature': temp_value,
+                'precipitation': precipitation_value,
+            }
+        )
+    return result[-30:]
+
+
+def _fetch_open_meteo_air_quality(lat: float, lon: float):
+    payload = _safe_get_json(
+        OPEN_METEO_AIR_QUALITY_URL,
+        params={
+            'latitude': lat,
+            'longitude': lon,
+            'hourly': 'pm10,pm2_5',
+            'timezone': 'auto',
+            'past_hours': 72,
+            'forecast_hours': 0,
+        },
+    )
+    hourly = payload.get('hourly', {}) if isinstance(payload, dict) else {}
+    result: list[dict[str, object]] = []
+    for date_value, pm10, pm2_5 in zip(
+        hourly.get('time') or [],
+        hourly.get('pm10') or [],
+        hourly.get('pm2_5') or [],
+    ):
+        pm10_value = _coerce_float(pm10)
+        pm2_5_value = _coerce_float(pm2_5)
+        if date_value is None or pm10_value is None or pm2_5_value is None:
+            continue
+        result.append(
+            {
+                'date': str(date_value),
+                'pm10': pm10_value,
+                'pm2_5': pm2_5_value,
+            }
+        )
+    return result[-72:]
 
 
 def fetch_climate_data():
@@ -249,7 +319,7 @@ def fetch_climate_data():
     lon = float(config.get('lon', METEOSTAT_LON))
 
     if not METEOSTAT_API_KEY:
-        data = _fallback_climate_data()
+        data = _fetch_open_meteo_climate(lat, lon)
         _cache_set('climate', data)
         return data
 
@@ -264,7 +334,7 @@ def fetch_climate_data():
     payload = _safe_get_json(f'{METEOSTAT_BASE_URL}/point/daily', params=params, headers=_meteostat_headers())
     rows = payload.get('data', []) if isinstance(payload, dict) else []
     if not rows:
-        data = _fallback_climate_data()
+        data = _fetch_open_meteo_climate(lat, lon)
         _cache_set('climate', data)
         return data
 
@@ -288,7 +358,10 @@ def fetch_climate_data():
             }
         )
 
-    result = sorted(result, key=lambda entry: entry['date'])[-30:]
+    if not result:
+        result = _fetch_open_meteo_climate(lat, lon)
+    else:
+        result = sorted(result, key=lambda entry: entry['date'])[-30:]
     _cache_set('climate', result)
     return result
 
@@ -381,7 +454,7 @@ def fetch_air_quality_data():
     radius = int(config.get('aq_radius', OPENAQ_RADIUS))
 
     if not OPENAQ_API_KEY:
-        data = _fallback_air_quality()
+        data = _fetch_open_meteo_air_quality(lat, lon)
         _cache_set('air_quality', data)
         return data
 
@@ -417,21 +490,70 @@ def fetch_air_quality_data():
     pm25_series = _fetch_openaq_series(pm25_sensor, start_dt, end_dt)
 
     if not pm10_series and not pm25_series:
-        data = _fallback_air_quality()
+        data = _fetch_open_meteo_air_quality(lat, lon)
         _cache_set('air_quality', data)
         return data
 
     combined: dict[str, dict[str, object]] = {}
     for entry in pm10_series:
-        slot = combined.setdefault(entry['date'], {'date': entry['date'], 'pm10': 0.0, 'pm2_5': 0.0})
+        slot = combined.setdefault(entry['date'], {'date': entry['date']})
         slot['pm10'] = entry['value']
     for entry in pm25_series:
-        slot = combined.setdefault(entry['date'], {'date': entry['date'], 'pm10': 0.0, 'pm2_5': 0.0})
+        slot = combined.setdefault(entry['date'], {'date': entry['date']})
         slot['pm2_5'] = entry['value']
 
-    data = sorted(combined.values(), key=lambda item: item['date'])[-72:]
+    data = [
+        {
+            'date': str(item['date']),
+            'pm10': float(item['pm10']),
+            'pm2_5': float(item['pm2_5']),
+        }
+        for item in sorted(combined.values(), key=lambda item: item['date'])
+        if item.get('pm10') is not None and item.get('pm2_5') is not None
+    ][-72:]
+    if not data:
+        data = _fetch_open_meteo_air_quality(lat, lon)
     _cache_set('air_quality', data)
     return data
+
+
+def _load_local_crop_fallback(config: dict[str, object], indicator: str):
+    if indicator != 'AG.YLD.MAIZ.KG' or not DEFAULT_CROPS_CSV.exists():
+        return []
+
+    try:
+        df = pd.read_csv(DEFAULT_CROPS_CSV)
+    except (OSError, pd.errors.EmptyDataError):
+        return []
+
+    required = {'Area', 'Element', 'Item', 'Year', 'Value'}
+    if not required.issubset(df.columns):
+        return []
+
+    country_name = str(config.get('country', '')).strip().lower()
+    if not country_name:
+        return []
+
+    filtered = df[
+        df['Area'].astype(str).str.strip().str.lower().eq(country_name)
+        & df['Element'].astype(str).str.strip().str.lower().eq('yield')
+        & df['Item'].astype(str).str.contains('maize', case=False, na=False)
+    ].copy()
+    if filtered.empty:
+        return []
+
+    filtered['year'] = pd.to_numeric(filtered['Year'], errors='coerce')
+    filtered['value'] = pd.to_numeric(filtered['Value'], errors='coerce')
+    filtered = filtered.dropna(subset=['year', 'value']).sort_values('year')
+
+    return [
+        {
+            'year': int(row['year']),
+            'item': f"{row['Area']} - {row['Item']}",
+            'value': float(row['value']),
+        }
+        for _, row in filtered.tail(500).iterrows()
+    ]
 
 
 def load_crop_data():
@@ -469,21 +591,7 @@ def load_crop_data():
             _cache_set('crops', data)
             return data
 
-    path = DEFAULT_CROPS_CSV if DEFAULT_CROPS_CSV.exists() else FALLBACK_CROPS_CSV
-    if not path.exists():
-        return []
-
-    df = pd.read_csv(path)
-    cols = [c for c in ['Year', 'Item', 'Value'] if c in df.columns]
-    if len(cols) < 3:
-        return []
-    data = (
-        df[cols]
-        .dropna()
-        .rename(columns={'Year': 'year', 'Item': 'item', 'Value': 'value'})
-        .head(500)
-        .to_dict(orient='records')
-    )
+    data = _load_local_crop_fallback(config, indicator)
     _cache_set('crops', data)
     return data
 
@@ -493,12 +601,13 @@ def load_co2_data():
     if cached is not None:
         return cached
 
+    config = get_runtime_config()
+    configured_countries = config.get('co2_countries')
+    countries = _dedupe_strings(configured_countries if isinstance(configured_countries, list) else CO2_COUNTRIES)
     payload = _safe_get_json(CO2_JSON_URL)
     if isinstance(payload, dict):
         data: list[dict[str, object]] = []
         index = {name.lower(): name for name in payload.keys()}
-        config = get_runtime_config()
-        countries = config.get('co2_countries') or CO2_COUNTRIES
         for country in countries:
             key = index.get(country.lower())
             if not key:
@@ -522,8 +631,28 @@ def load_co2_data():
             return data
 
     if FALLBACK_CO2_CSV.exists():
-        df = pd.read_csv(FALLBACK_CO2_CSV)
-        data = df.head(500).to_dict(orient='records')
+        try:
+            df = pd.read_csv(FALLBACK_CO2_CSV)
+        except (OSError, pd.errors.EmptyDataError):
+            return []
+        required = {'country', 'year', 'co_emissions_per_capita'}
+        if not required.issubset(df.columns):
+            return []
+        country_index = {country.lower() for country in countries}
+        filtered = df[df['country'].astype(str).str.strip().str.lower().isin(country_index)].copy()
+        if filtered.empty:
+            return []
+        filtered['year'] = pd.to_numeric(filtered['year'], errors='coerce')
+        filtered['co_emissions_per_capita'] = pd.to_numeric(filtered['co_emissions_per_capita'], errors='coerce')
+        filtered = filtered.dropna(subset=['year', 'co_emissions_per_capita']).sort_values(['country', 'year'])
+        data = [
+            {
+                'country': str(row['country']),
+                'year': int(row['year']),
+                'co_emissions_per_capita': float(row['co_emissions_per_capita']),
+            }
+            for _, row in filtered.tail(500).iterrows()
+        ]
         _cache_set('co2', data)
         return data
 

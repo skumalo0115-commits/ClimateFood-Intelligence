@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
-import { getCountryPreset, getSupportedCountryPresets, SUPPORTED_COUNTRY_NAMES } from '@/lib/countryPresets';
+import { getCountryPreset, getSupportedCountryPresets } from '@/lib/countryPresets';
 import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 const INDICATOR_OPTIONS = [
@@ -136,6 +136,7 @@ export default function AdminPage() {
             title="Live location controls"
             subtitle="Update country focus and coordinates without redeploying. Changes apply immediately to live API calls."
             tone="light"
+            country={config.country}
           />
 
         {warning && <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">{warning}</div>}
@@ -220,18 +221,6 @@ export default function AdminPage() {
                 />
               </label>
             </div>
-
-            <label className="flex flex-col gap-2 text-sm font-semibold text-slate-700">
-              Allowed countries (comma separated)
-              <input
-                value={form.co2_countries}
-                onChange={(event) => onChange('co2_countries', event.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-900"
-              />
-              <span className="text-xs font-normal text-slate-500">
-                Supported presets: {SUPPORTED_COUNTRY_NAMES.join(', ')}. Choosing a country here will also add it to the allowed list automatically.
-              </span>
-            </label>
 
             <div className="flex flex-wrap items-center gap-4">
               <button

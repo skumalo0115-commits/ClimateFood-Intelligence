@@ -22,9 +22,10 @@ export default function MapPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Map"
-            title={`Geo intelligence canvas ${selectedCountry}`}
+            title="Geo intelligence canvas"
             subtitle="Navigate the world with spatial context layered on climate and food analytics."
             tone="dark"
+            country={selectedCountry}
           />
           <SectionReveal from="down">
             <MapPanel config={config} />

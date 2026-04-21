@@ -33,9 +33,10 @@ export default function AirQualityPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Air quality"
-            title={`Pollution visibility at a glance ${selectedCountry}`}
+            title="Pollution visibility at a glance"
             subtitle="Track particulate concentrations alongside climate context to understand air health in a single narrative."
             tone="light"
+            country={selectedCountry}
           />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="right">

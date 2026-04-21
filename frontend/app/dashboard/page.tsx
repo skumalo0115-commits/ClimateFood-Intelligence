@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import ChartsPanel from '@/components/ChartsPanel';
+import CountryBadge from '@/components/CountryBadge';
 import DataStatus from '@/components/DataStatus';
 import SectionReveal from '@/components/SectionReveal';
 import { useDashboardData } from '@/lib/useDashboardData';
@@ -33,7 +34,10 @@ export default function DashboardPage() {
       <SectionReveal from="up">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Dashboard</p>
-          <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">{`Interactive Analytics Command Centre ${selectedCountry}`}</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-4xl font-semibold text-slate-900 md:text-5xl">Interactive Analytics Command Centre</h1>
+            <CountryBadge country={selectedCountry} />
+          </div>
           <p className="max-w-2xl text-lg text-slate-600">
             Monitor climate signals, air quality, crop performance, and AI yield scenarios with motion-rich insights.
           </p>

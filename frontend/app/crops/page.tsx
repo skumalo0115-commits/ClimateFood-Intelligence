@@ -30,9 +30,10 @@ export default function CropsPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Crops"
-            title={`Crop production momentum ${selectedCountry}`}
+            title="Crop production momentum"
             subtitle="Reveal yield trajectories and production shifts with a clean, animated line of sight."
             tone="light"
+            country={selectedCountry}
           />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">

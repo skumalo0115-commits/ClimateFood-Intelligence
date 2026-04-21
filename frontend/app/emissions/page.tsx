@@ -13,13 +13,13 @@ export default function EmissionsPage() {
   const { config } = useRuntimeConfig();
   const primaryCountry = config?.country ?? 'South Africa';
   const filtered = co2.filter((point) => point.country === primaryCountry);
-  const series = filtered.length ? filtered : co2;
+  const series = filtered;
 
   const data = {
     labels: series.map((d) => d.year),
     datasets: [
       {
-        label: `${primaryCountry} CO2 / capita`,
+        label: 'CO2 / capita',
         data: series.map((d) => d.co_emissions_per_capita),
         borderColor: '#0ea5e9'
       }
@@ -38,9 +38,10 @@ export default function EmissionsPage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Emissions"
-            title={`CO2 emissions clarity ${primaryCountry}`}
+            title="CO2 emissions clarity"
             subtitle="Understand emissions intensity and benchmark performance with animated trends."
             tone="light"
+            country={primaryCountry}
           />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="right">

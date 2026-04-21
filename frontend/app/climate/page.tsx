@@ -33,9 +33,10 @@ export default function ClimatePage() {
         <section className="section-container">
           <PageHeader
             eyebrow="Climate"
-            title={`Temperature and precipitation intelligence ${selectedCountry}`}
+            title="Temperature and precipitation intelligence"
             subtitle="Detect season shifts, surface anomalies, and precipitation patterns with a clean, motion-driven view."
             tone="light"
+            country={selectedCountry}
           />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">

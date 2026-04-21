@@ -103,15 +103,14 @@ function getMeaningNote(title: string, datasets: any[], fallback: string) {
   }
 
   if (descriptor.includes('scenario') || descriptor.includes('prediction')) {
-    return 'These bars are possible model outcomes, not past history. The tallest bar is the most optimistic yield result in the set.';
+    return "These bars are scenario estimates built from the selected country's crop history, not observed past values. The tallest bar is the most optimistic yield result in the set.";
   }
 
   return fallback;
 }
 
 export default function ChartsPanel({ climate, airQuality, crops, co2, predictions, country }: Props) {
-  const co2Primary = co2.filter((point) => point.country === country);
-  const co2Series = co2Primary.length ? co2Primary : co2;
+  const co2Series = co2.filter((point) => point.country === country);
 
   return (
     <div className="grid auto-rows-fr items-stretch gap-6 lg:grid-cols-2">
@@ -381,7 +380,7 @@ export function ChartCard({
   const generatedInsight = useMemo(() => {
     if (!autoInsight) return insight;
     if (!filteredData?.datasets?.length || !filteredData.labels?.length) {
-      return 'There are not enough data points in the chosen range yet.';
+      return 'There are not enough verified data points in the chosen range yet.';
     }
     const datasetSummaries = filteredData.datasets.slice(0, 2).map((dataset: any) => {
       const values = (dataset.data || []).filter((value: unknown) => typeof value === 'number') as number[];
@@ -483,7 +482,7 @@ export function ChartCard({
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-slate-500">
-            Data temporarily unavailable.
+            Verified data is not available for this country yet.
           </div>
         )}
       </div>
