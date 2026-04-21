@@ -1,6 +1,7 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
+import CountryFocusCard from '@/components/CountryFocusCard';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
 import { ChartCard } from '@/components/ChartsPanel';
@@ -10,7 +11,7 @@ import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 export default function EmissionsPage() {
   const { co2, loading, error } = useDashboardData();
-  const { config } = useRuntimeConfig();
+  const { config, loading: configLoading, updateConfig } = useRuntimeConfig();
   const primaryCountry = config?.country ?? 'South Africa';
   const filtered = co2.filter((point) => point.country === primaryCountry);
   const series = filtered.length ? filtered : co2;
@@ -41,12 +42,15 @@ export default function EmissionsPage() {
             title="CO2 emissions clarity"
             subtitle="Understand emissions intensity and benchmark performance with animated trends."
             tone="light"
+            country={primaryCountry}
           />
+          <CountryFocusCard config={config} loading={configLoading} updateConfig={updateConfig} />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="right">
             <div className="mt-10">
               <ChartCard
-                title={`CO2 emissions per capita - ${primaryCountry}`}
+                title="CO2 emissions per capita"
+                country={primaryCountry}
                 chartKind="area"
                 insight="The filled curve highlights how per-capita CO2 changes over time. A flattening curve signals stabilizing emissions intensity, while steeper slopes show acceleration."
                 autoInsight

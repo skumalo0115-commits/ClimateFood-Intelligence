@@ -1,48 +1,18 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-
-export interface RuntimeConfig {
-  country: string;
-  country_code: string;
-  lat: number;
-  lon: number;
-  aq_radius: number;
-  crops_indicator: string;
-  crops_country: string;
-  co2_countries: string[];
-}
-
-const DEFAULT_CONFIG: RuntimeConfig = {
-  country: 'South Africa',
-  country_code: 'ZAF',
-  lat: -26.2041,
-  lon: 28.0473,
-  aq_radius: 15000,
-  crops_indicator: 'AG.YLD.MAIZ.KG',
-  crops_country: 'ZAF',
-  co2_countries: ['South Africa', 'Kenya', 'India', 'Germany']
-};
-
-const CONFIG_STORAGE_KEY = 'cfi_runtime_config_v1';
-const CONFIG_TTL_MS = 6 * 60 * 60 * 1000;
+import {
+  CONFIG_STORAGE_KEY,
+  CONFIG_TTL_MS,
+  CONFIG_UPDATE_KEY,
+  CONFIG_UPDATED_EVENT,
+  DEFAULT_RUNTIME_CONFIG,
+  RuntimeConfig,
+  markRuntimeConfigUpdated,
+  normalizeRuntimeConfig
+} from '@/lib/runtimeConfigShared';
 
 let memoryCache: { time: number; data: RuntimeConfig } | null = null;
-
-function normalizeConfig(input: Partial<RuntimeConfig> | undefined | null): RuntimeConfig {
-  if (!input) return { ...DEFAULT_CONFIG };
-
-  return {
-    country: input.country ?? DEFAULT_CONFIG.country,
-    country_code: input.country_code ?? DEFAULT_CONFIG.country_code,
-    lat: typeof input.lat === 'number' ? input.lat : DEFAULT_CONFIG.lat,
-    lon: typeof input.lon === 'number' ? input.lon : DEFAULT_CONFIG.lon,
-    aq_radius: typeof input.aq_radius === 'number' ? input.aq_radius : DEFAULT_CONFIG.aq_radius,
-    crops_indicator: input.crops_indicator ?? DEFAULT_CONFIG.crops_indicator,
-    crops_country: input.crops_country ?? DEFAULT_CONFIG.crops_country,
-    co2_countries: Array.isArray(input.co2_countries) && input.co2_countries.length > 0 ? input.co2_countries : DEFAULT_CONFIG.co2_countries
-  };
-}
 
 function readCachedConfig() {
   if (typeof window !== 'undefined') {
@@ -74,7 +44,7 @@ function writeCachedConfig(data: RuntimeConfig) {
 }
 
 export function useRuntimeConfig() {
-  const [config, setConfig] = useState<RuntimeConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<RuntimeConfig>(DEFAULT_RUNTIME_CONFIG);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [warning, setWarning] = useState('');
@@ -84,7 +54,7 @@ export function useRuntimeConfig() {
     const isFresh = cached && Date.now() - cached.time < CONFIG_TTL_MS;
 
     if (cached && !force) {
-      setConfig(normalizeConfig(cached.data));
+      setConfig(normalizeRuntimeConfig(cached.data));
       setLoading(false);
       if (isFresh) return;
     }
@@ -92,7 +62,7 @@ export function useRuntimeConfig() {
     try {
       const response = await fetch('/api/config', { cache: 'no-store' });
       const body = await response.json();
-      const next = normalizeConfig(body?.data ?? body);
+      const next = normalizeRuntimeConfig(body?.data ?? body);
       if (body?.warning) {
         setWarning(body.warning);
       } else {
@@ -116,6 +86,36 @@ export function useRuntimeConfig() {
     refreshConfig();
   }, [refreshConfig]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const syncFromCache = () => {
+      const cached = readCachedConfig();
+      if (!cached?.data) return;
+      setConfig(normalizeRuntimeConfig(cached.data));
+      setLoading(false);
+    };
+
+    const onConfigUpdated = () => {
+      syncFromCache();
+      setError('');
+    };
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === CONFIG_STORAGE_KEY || event.key === CONFIG_UPDATE_KEY) {
+        syncFromCache();
+      }
+    };
+
+    window.addEventListener(CONFIG_UPDATED_EVENT, onConfigUpdated as EventListener);
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      window.removeEventListener(CONFIG_UPDATED_EVENT, onConfigUpdated as EventListener);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+
   const updateConfig = useCallback(async (payload: Partial<RuntimeConfig>) => {
     setLoading(true);
     setError('');
@@ -130,9 +130,10 @@ export function useRuntimeConfig() {
       if (!response.ok) {
         throw new Error(body?.error || 'Unable to update config');
       }
-      const next = normalizeConfig(body?.data ?? body);
+      const next = normalizeRuntimeConfig(body?.data ?? body);
       writeCachedConfig(next);
       setConfig(next);
+      markRuntimeConfigUpdated();
       setLoading(false);
       return next;
     } catch (err) {

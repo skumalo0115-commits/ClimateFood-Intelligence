@@ -1,14 +1,18 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
+import CountryFocusCard from '@/components/CountryFocusCard';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
 import { ChartCard } from '@/components/ChartsPanel';
 import DataStatus from '@/components/DataStatus';
 import { useDashboardData } from '@/lib/useDashboardData';
+import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 export default function CropsPage() {
   const { crops, loading, error } = useDashboardData();
+  const { config, loading: configLoading, updateConfig } = useRuntimeConfig();
+  const selectedCountry = config.country ?? 'South Africa';
 
   const data = {
     labels: crops.map((d) => d.year),
@@ -30,12 +34,15 @@ export default function CropsPage() {
             title="Crop production momentum"
             subtitle="Reveal yield trajectories and production shifts with a clean, animated line of sight."
             tone="light"
+            country={selectedCountry}
           />
+          <CountryFocusCard config={config} loading={configLoading} updateConfig={updateConfig} />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">
             <div className="mt-10">
               <ChartCard
                 title="Maize yield trends"
+                country={selectedCountry}
                 chartKind="bar"
                 insight="Each bar represents the maize yield per hectare for the selected country. Peaks mark strong seasons, while dips can indicate climate stress or input gaps."
                 autoInsight

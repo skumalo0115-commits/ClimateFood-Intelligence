@@ -1,14 +1,18 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
+import CountryFocusCard from '@/components/CountryFocusCard';
 import PageHeader from '@/components/PageHeader';
 import SectionReveal from '@/components/SectionReveal';
 import { ChartCard } from '@/components/ChartsPanel';
 import DataStatus from '@/components/DataStatus';
 import { useDashboardData } from '@/lib/useDashboardData';
+import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 export default function ClimatePage() {
   const { climate, loading, error } = useDashboardData();
+  const { config, loading: configLoading, updateConfig } = useRuntimeConfig();
+  const selectedCountry = config.country ?? 'South Africa';
 
   const data = {
     labels: climate.map((d) => d.date),
@@ -33,12 +37,15 @@ export default function ClimatePage() {
             title="Temperature and precipitation intelligence"
             subtitle="Detect season shifts, surface anomalies, and precipitation patterns with a clean, motion-driven view."
             tone="light"
+            country={selectedCountry}
           />
+          <CountryFocusCard config={config} loading={configLoading} updateConfig={updateConfig} />
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">
             <div className="mt-10">
               <ChartCard
                 title="Temperature & precipitation"
+                country={selectedCountry}
                 chartKind="line"
                 insight="The temperature and rainfall lines show the most recent 30 days for the focus coordinates. When the temperature line rises while precipitation drops, it signals drying conditions and crop stress risk."
                 autoInsight

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AirQualityPoint, ClimatePoint, Co2Point, CropPoint, PredictionPoint } from '@/lib/types';
+import { CONFIG_UPDATE_KEY, CONFIG_UPDATED_EVENT, DASHBOARD_STORAGE_KEY } from '@/lib/runtimeConfigShared';
 
 interface DashboardData {
   climate: ClimatePoint[];
@@ -17,15 +18,13 @@ interface ProxyPayload {
 }
 
 const ENDPOINTS = ['climate', 'air-quality', 'crops', 'co2', 'predict'] as const;
-const STORAGE_KEY = 'cfi_dashboard_cache_v2';
-const CONFIG_UPDATE_KEY = 'cfi_config_updated_at';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 let memoryCache: { time: number; data: DashboardData } | null = null;
 
 function readCache() {
   if (typeof window !== 'undefined') {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY);
     if (!raw) {
       memoryCache = null;
       return null;
@@ -53,7 +52,7 @@ function writeCache(data: DashboardData) {
   const payload = { time: Date.now(), data };
   memoryCache = payload;
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    window.localStorage.setItem(DASHBOARD_STORAGE_KEY, JSON.stringify(payload));
   }
 }
 
@@ -67,6 +66,26 @@ export function useDashboardData() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const refresh = () => setRefreshKey((current) => current + 1);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === CONFIG_UPDATE_KEY) {
+        refresh();
+      }
+    };
+
+    window.addEventListener(CONFIG_UPDATED_EVENT, refresh as EventListener);
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      window.removeEventListener(CONFIG_UPDATED_EVENT, refresh as EventListener);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -135,7 +154,7 @@ export function useDashboardData() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   return { ...data, loading, error };
 }

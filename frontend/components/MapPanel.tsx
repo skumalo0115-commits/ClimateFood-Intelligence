@@ -5,7 +5,12 @@ import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaf
 import 'leaflet/dist/leaflet.css';
 import { motion, useInView } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
+import CountryBadge from '@/components/CountryBadge';
+import type { RuntimeConfig } from '@/lib/runtimeConfigShared';
+
+interface Props {
+  config: RuntimeConfig;
+}
 
 function MobileDoubleTapGesture() {
   const map = useMap();
@@ -69,8 +74,7 @@ function MobileDoubleTapGesture() {
   return null;
 }
 
-export default function MapPanel() {
-  const { config } = useRuntimeConfig();
+export default function MapPanel({ config }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { amount: 0.35 });
 
@@ -91,6 +95,15 @@ export default function MapPanel() {
         transition={{ duration: 0.9, ease: 'easeOut' }}
         className="pointer-events-none absolute left-6 right-6 top-0 h-[2px] origin-left rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-amber-400"
       />
+      <div className="relative z-10 flex flex-wrap items-start justify-between gap-4 px-6 pb-0 pt-6">
+        <div>
+          <div className="flex flex-wrap items-center gap-3">
+            <h3 className="text-lg font-semibold text-slate-900">Live Focus Map</h3>
+            <CountryBadge country={config.country ?? 'South Africa'} />
+          </div>
+          <p className="mt-1 text-sm text-slate-600">The map pin marks the active country focus used for climate and air quality lookups.</p>
+        </div>
+      </div>
       <div className="pointer-events-none absolute right-4 top-4 z-20 rounded-full border border-slate-200 bg-white/90 p-2 shadow-sm">
         <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
           <circle cx="14" cy="14" r="12.5" fill="none" stroke="#0f172a" strokeOpacity="0.2" />
