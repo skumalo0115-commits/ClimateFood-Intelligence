@@ -50,7 +50,7 @@ export default function DashboardPage() {
         <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
           <p className="font-semibold">Deployment variables to set exactly:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Frontend: <code>NEXT_PUBLIC_BACKEND_URL=https://climatefood-backend.up.railway.app</code> (then redeploy frontend)</li>
+            <li>Frontend: <code>NEXT_PUBLIC_BACKEND_URL=https://your-backend-project.vercel.app</code> (then redeploy frontend)</li>
             <li>Backend: <code>OPENAQ_API_KEY=your_openaq_key</code> (required for air quality)</li>
             <li>Backend: <code>METEOSTAT_API_KEY=your_rapidapi_key</code> and <code>METEOSTAT_HOST=meteostat.p.rapidapi.com</code> (required for climate)</li>
             <li>Backend: <code>CO2_JSON_URL=https://owid-public.owid.io/data/co2/owid-co2-data.json</code></li>

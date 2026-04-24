@@ -51,16 +51,18 @@ npm run dev
 
 ## 🔐 Environment Variables
 Frontend:
-- `NEXT_PUBLIC_BACKEND_URL` (backend base URL)
+- `NEXT_PUBLIC_BACKEND_URL` (recommended Vercel variable for the backend Vercel project URL)
+- Optional aliases also supported: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_API_BASE_URL`, `BACKEND_URL`
 
 Backend:
-- `OPENAQ_API_KEY`
-- `METEOSTAT_API_KEY`
-- `METEOSTAT_HOST`
-- `CO2_JSON_URL`
-- `CROPS_JSON_URL`
-- Optional: `CO2_COUNTRIES`, `CROPS_COUNTRY`, `CROPS_INDICATOR`
-- Optional location: `OPENAQ_LAT`, `OPENAQ_LON`, `METEOSTAT_LAT`, `METEOSTAT_LON`
+- Air quality: `OPENAQ_API_KEY`, `OPENAQ_BASE_URL`, `OPENAQ_LAT`, `OPENAQ_LON`, `OPENAQ_RADIUS`
+- Climate: `METEOSTAT_API_KEY`, `METEOSTAT_HOST`, `METEOSTAT_BASE_URL`, `METEOSTAT_LAT`, `METEOSTAT_LON`
+- Open-Meteo fallback overrides: `OPEN_METEO_ARCHIVE_URL`, `OPEN_METEO_AIR_QUALITY_URL`
+- CO2: `CO2_JSON_URL`, `CO2_COUNTRIES`
+- Crops: `CROPS_COUNTRY`, `CROPS_INDICATOR`, `CROPS_JSON_URL`
+- Initial defaults: `DEFAULT_COUNTRY`, `DEFAULT_COUNTRY_CODE`, `DEFAULT_LAT`, `DEFAULT_LON`, `DEFAULT_AQ_RADIUS`
+- Durable Admin persistence on Vercel: `KV_REST_API_URL`, `KV_REST_API_TOKEN`, optional `KV_REST_API_READ_ONLY_TOKEN`
+- Advanced: `PORT`, `RUNTIME_CONFIG_PATH`, `RUNTIME_CONFIG_KV_KEY`
 
 ## 🔌 API Endpoints (Backend)
 - `GET /api/climate`
@@ -71,14 +73,13 @@ Backend:
 - `GET /api/config`
 - `POST /api/config`
 
-## 📦 Deployment (Railway)
-1. Deploy backend first
-2. Set backend env vars
-3. Deploy frontend and set `NEXT_PUBLIC_BACKEND_URL`
+## 📦 Deployment
+- Recommended: **frontend on Vercel** + **backend on Vercel**
+- Full step-by-step guide: [docs/deployment/vercel-fullstack.md](/C:/Users/Sbahle%20Kumalo/OneDrive/Documents/GitHub/ClimateFood-Intelligence/docs/deployment/vercel-fullstack.md:1)
 
 ## 🛠️ Troubleshooting
 - **Backend returns 502:** Check backend logs and ensure it starts (`start.py` must be in the container)
-- **Admin save fails:** Verify backend `/api/config` is responding and writable
+- **Admin save fails:** Verify backend `/api/config` is responding and that the backend project has the Upstash Redis integration connected on Vercel
 - **Charts not updating:** Clear dashboard cache and refresh after admin update
 
 ---

@@ -21,7 +21,7 @@ railway up --service "$BackendServiceName" --ci
 Pop-Location
 
 if ([string]::IsNullOrWhiteSpace($BackendPublicDomain)) {
-    Write-Error "BackendPublicDomain is required for frontend deployment. Example: -BackendPublicDomain https://climatefood-backend.up.railway.app"
+    Write-Error "BackendPublicDomain is required for frontend deployment. Example: -BackendPublicDomain https://your-backend-domain.example"
 }
 
 Push-Location "$repoRoot\frontend"

@@ -24,8 +24,8 @@ popd >/dev/null
 
 if [[ -z "$BACKEND_PUBLIC_DOMAIN" ]]; then
   echo "BACKEND_PUBLIC_DOMAIN is not set."
-  echo "Set it to your backend Railway URL before deploying frontend."
-  echo "Example: export BACKEND_PUBLIC_DOMAIN=https://climatefood-backend.up.railway.app"
+  echo "Set it to your backend public URL before deploying frontend."
+  echo "Example: export BACKEND_PUBLIC_DOMAIN=https://your-backend-domain.example"
   exit 1
 fi
 

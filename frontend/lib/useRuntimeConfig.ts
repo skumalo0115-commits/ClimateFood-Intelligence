@@ -131,6 +131,11 @@ export function useRuntimeConfig() {
         throw new Error(body?.error || 'Unable to update config');
       }
       const next = normalizeRuntimeConfig(body?.data ?? body);
+      if (body?.warning) {
+        setWarning(body.warning);
+      } else {
+        setWarning('');
+      }
       writeCachedConfig(next);
       setConfig(next);
       markRuntimeConfigUpdated();

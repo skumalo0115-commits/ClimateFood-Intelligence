@@ -4,6 +4,7 @@ from app.services.data_service import (
     fetch_air_quality_data,
     fetch_climate_data,
     fetch_weather_data,
+    get_runtime_config_warning,
     get_runtime_config,
     load_co2_data,
     load_crop_data,
@@ -46,9 +47,17 @@ def predict():
 
 @router.get('/config')
 def get_config():
-    return {'data': get_runtime_config()}
+    response = {'data': get_runtime_config()}
+    warning = get_runtime_config_warning()
+    if warning:
+        response['warning'] = warning
+    return response
 
 
 @router.post('/config')
 def update_config(payload: dict = Body(...)):
-    return {'data': set_runtime_config(payload)}
+    response = {'data': set_runtime_config(payload)}
+    warning = get_runtime_config_warning()
+    if warning:
+        response['warning'] = warning
+    return response

@@ -11,6 +11,7 @@ pnpm-debug.log*
 # Next.js build output
 .next/
 out/
+.vercel/
 
 # Build artifacts
 dist/
@@ -23,6 +24,8 @@ dist/
 
 # Python virtual env
 .venv/
+__pycache__/
+*.pyc
 
 # OS files
 .DS_Store

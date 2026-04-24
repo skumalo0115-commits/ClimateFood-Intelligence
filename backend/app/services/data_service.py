@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+IS_VERCEL = bool(os.getenv('VERCEL'))
 CO2_JSON_URL = os.getenv('CO2_JSON_URL', 'https://owid-public.owid.io/data/co2/owid-co2-data.json')
 CO2_COUNTRIES = [
     c.strip() for c in os.getenv('CO2_COUNTRIES', 'South Africa,Kenya,India,Germany').split(',') if c.strip()
@@ -33,8 +34,14 @@ REPO_DIR = Path(__file__).resolve().parents[3]
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_CROPS_CSV = BACKEND_DIR / 'data' / 'faostat_data.csv'
 FALLBACK_CO2_CSV = BACKEND_DIR / 'data' / 'co2_emissions.csv'
-DEFAULT_RUNTIME_CONFIG_PATH = Path(os.getenv('RUNTIME_CONFIG_PATH', str(BACKEND_DIR / 'data' / 'runtime_config.json')))
+DEFAULT_RUNTIME_CONFIG_PATH = Path(
+    os.getenv('RUNTIME_CONFIG_PATH', '/tmp/runtime_config.json' if IS_VERCEL else str(BACKEND_DIR / 'data' / 'runtime_config.json'))
+)
 FALLBACK_RUNTIME_CONFIG_PATH = Path('/tmp/runtime_config.json')
+RUNTIME_CONFIG_KV_URL = (os.getenv('KV_REST_API_URL') or os.getenv('UPSTASH_REDIS_REST_URL', '')).rstrip('/')
+RUNTIME_CONFIG_KV_TOKEN = os.getenv('KV_REST_API_TOKEN') or os.getenv('UPSTASH_REDIS_REST_TOKEN', '')
+RUNTIME_CONFIG_KV_READ_ONLY_TOKEN = os.getenv('KV_REST_API_READ_ONLY_TOKEN') or os.getenv('UPSTASH_REDIS_REST_READ_ONLY_TOKEN', '')
+RUNTIME_CONFIG_KV_KEY = os.getenv('RUNTIME_CONFIG_KV_KEY', 'climatefood:runtime_config')
 _ACTIVE_RUNTIME_CONFIG_PATH: Path | None = None
 
 _CACHE: dict[str, dict[str, object]] = {}
@@ -150,7 +157,81 @@ def _select_runtime_config_path():
     return _ACTIVE_RUNTIME_CONFIG_PATH
 
 
-def _write_runtime_config(config: dict[str, object]):
+def _runtime_config_kv_configured():
+    return bool(RUNTIME_CONFIG_KV_URL and (RUNTIME_CONFIG_KV_TOKEN or RUNTIME_CONFIG_KV_READ_ONLY_TOKEN))
+
+
+def _runtime_config_kv_writable():
+    return bool(RUNTIME_CONFIG_KV_URL and RUNTIME_CONFIG_KV_TOKEN)
+
+
+def get_runtime_config_warning():
+    if IS_VERCEL and not _runtime_config_kv_writable():
+        return (
+            'Admin changes are using temporary Vercel file storage right now. '
+            'Connect Upstash Redis from the Vercel Marketplace to keep changes after redeploys.'
+        )
+    return ''
+
+
+def _runtime_config_kv_headers(write: bool = False):
+    token = RUNTIME_CONFIG_KV_TOKEN
+    if not write and RUNTIME_CONFIG_KV_READ_ONLY_TOKEN:
+        token = RUNTIME_CONFIG_KV_READ_ONLY_TOKEN
+    if not token:
+        token = RUNTIME_CONFIG_KV_TOKEN
+    if not token:
+        return None
+    return {'Authorization': f'Bearer {token}'}
+
+
+def _runtime_config_kv_command(command: list[object], write: bool = False):
+    if not RUNTIME_CONFIG_KV_URL:
+        return False, None
+
+    headers = _runtime_config_kv_headers(write=write)
+    if not headers:
+        return False, None
+
+    try:
+        response = requests.post(RUNTIME_CONFIG_KV_URL, json=command, headers=headers, timeout=10)
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return False, None
+
+    if not isinstance(payload, dict) or payload.get('error'):
+        return False, None
+    return True, payload.get('result')
+
+
+def _read_runtime_config_from_kv():
+    ok, raw = _runtime_config_kv_command(['GET', RUNTIME_CONFIG_KV_KEY])
+    if not ok:
+        return False, None
+    if raw is None:
+        return True, None
+    if isinstance(raw, dict):
+        return True, raw
+    if isinstance(raw, str):
+        try:
+            return True, json.loads(raw)
+        except json.JSONDecodeError:
+            return True, None
+    return True, None
+
+
+def _read_runtime_config_from_file():
+    path = _select_runtime_config_path()
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _write_runtime_config_to_file(config: dict[str, object]):
     path = _select_runtime_config_path()
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -168,22 +249,49 @@ def _write_runtime_config(config: dict[str, object]):
             return False
 
 
+def _write_runtime_config_to_kv(config: dict[str, object]):
+    if not _runtime_config_kv_writable():
+        return False
+
+    ok, result = _runtime_config_kv_command(
+        ['SET', RUNTIME_CONFIG_KV_KEY, json.dumps(config, separators=(',', ':'))],
+        write=True,
+    )
+    return ok and result == 'OK'
+
+
+def _write_runtime_config(config: dict[str, object]):
+    kv_written = _write_runtime_config_to_kv(config)
+    file_written = _write_runtime_config_to_file(config)
+    return kv_written or file_written
+
+
 def get_runtime_config():
     cached = _cache_get('runtime_config', 10)
     if cached is not None:
         return cached
 
     raw = None
-    path = _select_runtime_config_path()
-    if path.exists():
-        try:
-            raw = json.loads(path.read_text(encoding='utf-8'))
-        except (OSError, json.JSONDecodeError):
-            raw = None
+    kv_checked = False
+    kv_has_value = False
+
+    if _runtime_config_kv_configured():
+        kv_checked, kv_raw = _read_runtime_config_from_kv()
+        if kv_checked and kv_raw is not None:
+            raw = kv_raw
+            kv_has_value = True
+
+    if raw is None:
+        raw = _read_runtime_config_from_file()
 
     config = _sanitize_runtime_config(raw)
-    if not path.exists() or raw is None:
+    if raw is None:
         _write_runtime_config(config)
+    elif kv_has_value:
+        _write_runtime_config_to_file(config)
+    elif _runtime_config_kv_writable() and kv_checked:
+        _write_runtime_config_to_kv(config)
+        _write_runtime_config_to_file(config)
 
     _cache_set('runtime_config', config)
     return config
