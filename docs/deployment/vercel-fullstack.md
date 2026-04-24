@@ -22,7 +22,23 @@ This follows Vercel's monorepo setup, where each project points at its own root 
 
 The backend now exports the FastAPI app from [backend/index.py](/C:/Users/Sbahle%20Kumalo/OneDrive/Documents/GitHub/ClimateFood-Intelligence/backend/index.py:1), which is one of Vercel's supported FastAPI entrypoints.
 
-The backend also includes [backend/vercel.json](/C:/Users/Sbahle%20Kumalo/OneDrive/Documents/GitHub/ClimateFood-Intelligence/backend/vercel.json:1) so the bundled function includes the local `data/**` files the API reads.
+The backend keeps a minimal [backend/vercel.json](/C:/Users/Sbahle%20Kumalo/OneDrive/Documents/GitHub/ClimateFood-Intelligence/backend/vercel.json:1), but it does not define a `functions` block anymore.
+
+That change is important because Vercel's current Python Functions config validates `functions` patterns against files inside an `api/` directory. This backend uses Vercel's newer zero-configuration FastAPI support with a root [backend/index.py](/C:/Users/Sbahle%20Kumalo/OneDrive/Documents/GitHub/ClimateFood-Intelligence/backend/index.py:1) entrypoint, so using:
+
+```json
+"functions": {
+  "index.py": { ... }
+}
+```
+
+causes the build error:
+
+```text
+The pattern "index.py" defined in functions doesn't match any Serverless Functions inside the api directory.
+```
+
+Leaving the FastAPI entrypoint at `backend/index.py` preserves the current external backend URLs like `/api/config`, `/api/climate`, and `/api/co2`.
 
 ## Admin persistence on Vercel
 
@@ -127,6 +143,8 @@ RUNTIME_CONFIG_PATH=/tmp/runtime_config.json
 ```
 
 You do not normally need to set `PORT` on Vercel.
+
+If you want to customize function duration for this backend later, use the backend project's **Settings -> Functions** section in Vercel. The old `functions.index.py` config was removed because it conflicts with zero-config FastAPI detection.
 
 ## Exact steps to add frontend variables in Vercel
 
