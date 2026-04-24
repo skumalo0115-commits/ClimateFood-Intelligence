@@ -4,6 +4,15 @@
 
 ![Home hero preview](https://github.com/skumalo0115-commits/ClimateFood-Intelligence/blob/main/docs/screenshots/Screenshot%202026-03-14%20022416.png)
 
+---
+
+## 🌍 Live Websites
+
+- **Website:** https://climate-food-intelligence.vercel.app/
+- **Alternative Website:** https://climatefood-intelligence.up.railway.app/
+- **Vercel-ready:** This repo now includes `vercel.json` plus a Vercel build step.
+
+---
 
 ## ✨ Highlights
 - Live climate, air‑quality, crop, emissions, and AI prediction signals
