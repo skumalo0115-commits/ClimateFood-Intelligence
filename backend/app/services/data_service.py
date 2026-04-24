@@ -734,7 +734,7 @@ def load_co2_data():
                     }
                 )
         if data:
-            data = sorted(data, key=lambda item: (item['country'], item['year']))[-500:]
+            data = sorted(data, key=lambda item: (item['country'], item['year']))
             _cache_set('co2', data)
             return data
 
@@ -759,7 +759,7 @@ def load_co2_data():
                 'year': int(row['year']),
                 'co_emissions_per_capita': float(row['co_emissions_per_capita']),
             }
-            for _, row in filtered.tail(500).iterrows()
+            for _, row in filtered.iterrows()
         ]
         _cache_set('co2', data)
         return data
