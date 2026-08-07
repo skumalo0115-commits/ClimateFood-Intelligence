@@ -45,13 +45,20 @@ export default function EmissionsPage() {
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="right">
             <div className="mt-10">
-              <ChartCard
-                title={`CO2 emissions per capita - ${primaryCountry}`}
-                chartKind="area"
-                insight="The filled curve highlights how per-capita CO2 changes over time. A flattening curve signals stabilizing emissions intensity, while steeper slopes show acceleration."
-                autoInsight
-                data={data}
-              />
+              {(!loading && series.length === 0) ? (
+                <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-center text-slate-800">
+                  <p className="text-lg font-semibold">Verified data is not available for this country yet.</p>
+                  <p className="mt-2 text-sm text-slate-600">Check the country settings in the Admin page or choose a different country.</p>
+                </div>
+              ) : (
+                <ChartCard
+                  title={`CO2 emissions per capita - ${primaryCountry}`}
+                  chartKind="area"
+                  insight="The filled curve highlights how per-capita CO2 changes over time. A flattening curve signals stabilizing emissions intensity, while steeper slopes show acceleration."
+                  autoInsight
+                  data={data}
+                />
+              )}
             </div>
           </SectionReveal>
         </section>

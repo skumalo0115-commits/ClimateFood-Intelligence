@@ -4,6 +4,7 @@ from app.services.data_service import (
     fetch_air_quality_data,
     fetch_climate_data,
     fetch_weather_data,
+    get_location_recommendations,
     get_runtime_config,
     load_co2_data,
     load_crop_data,
@@ -15,8 +16,8 @@ router = APIRouter(prefix='/api')
 
 
 @router.get('/climate')
-def climate():
-    return {'data': fetch_climate_data()}
+def climate(lat: float | None = None, lon: float | None = None):
+    return {'data': fetch_climate_data(lat=lat, lon=lon)}
 
 
 @router.get('/weather')
@@ -42,6 +43,11 @@ def co2():
 @router.get('/predict')
 def predict():
     return {'data': predict_crop_yield()}
+
+
+@router.get('/locations')
+def locations(country: str | None = None):
+    return {'data': get_location_recommendations(country)}
 
 
 @router.get('/config')

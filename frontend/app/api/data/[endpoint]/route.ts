@@ -55,7 +55,7 @@ function fallbackData(endpoint: string) {
   return [];
 }
 
-export async function GET(_: NextRequest, { params }: { params: { endpoint: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { endpoint: string } }) {
   const endpoint = params.endpoint;
 
   if (!allowedEndpoints.has(endpoint)) {
@@ -63,9 +63,11 @@ export async function GET(_: NextRequest, { params }: { params: { endpoint: stri
   }
 
   const backendUrl = resolveBackendUrl();
+  const query = request.nextUrl.searchParams.toString();
+  const backendEndpoint = `${backendUrl}/api/${endpoint}${query ? `?${query}` : ''}`;
 
   try {
-    const response = await fetch(`${backendUrl}/api/${endpoint}`, {
+    const response = await fetch(backendEndpoint, {
       next: { revalidate: 300 }
     });
 

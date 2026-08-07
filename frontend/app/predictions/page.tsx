@@ -33,13 +33,20 @@ export default function PredictionsPage() {
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">
             <div className="mt-10">
-              <ChartCard
-                title="Predicted yield scenarios"
-                chartKind="bar"
-                insight="Each bar is a scenario the model simulated. Bigger bars represent more optimistic yield outcomes under that scenario's climate and input assumptions."
-                autoInsight
-                data={data}
-              />
+              {(!loading && !error && predictions.length === 0) ? (
+                <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-center text-slate-800">
+                  <p className="text-lg font-semibold">Verified prediction scenarios are not available yet.</p>
+                  <p className="mt-2 text-sm text-slate-600">Load the backend and try again later.</p>
+                </div>
+              ) : (
+                <ChartCard
+                  title="Predicted yield scenarios"
+                  chartKind="bar"
+                  insight="Each bar is a scenario the model simulated. Bigger bars represent more optimistic yield outcomes under that scenario's climate and input assumptions."
+                  autoInsight
+                  data={data}
+                />
+              )}
             </div>
           </SectionReveal>
         </section>

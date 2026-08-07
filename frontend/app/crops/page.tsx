@@ -34,13 +34,20 @@ export default function CropsPage() {
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="left">
             <div className="mt-10">
-              <ChartCard
-                title="Maize yield trends"
-                chartKind="bar"
-                insight="Each bar represents the maize yield per hectare for the selected country. Peaks mark strong seasons, while dips can indicate climate stress or input gaps."
-                autoInsight
-                data={data}
-              />
+              {(!loading && crops.length === 0) ? (
+                <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-center text-slate-800">
+                  <p className="text-lg font-semibold">Verified data is not available for this country yet.</p>
+                  <p className="mt-2 text-sm text-slate-600">Try another country or update the admin location settings.</p>
+                </div>
+              ) : (
+                <ChartCard
+                  title="Maize yield trends"
+                  chartKind="bar"
+                  insight="Each bar represents the maize yield per hectare for the selected country. Peaks mark strong seasons, while dips can indicate climate stress or input gaps."
+                  autoInsight
+                  data={data}
+                />
+              )}
             </div>
           </SectionReveal>
         </section>

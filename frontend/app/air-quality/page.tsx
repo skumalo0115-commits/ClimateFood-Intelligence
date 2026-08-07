@@ -37,13 +37,20 @@ export default function AirQualityPage() {
           <DataStatus loading={loading} error={error} />
           <SectionReveal from="right">
             <div className="mt-10">
-              <ChartCard
-                title="PM10 and PM2.5 trends"
-                chartKind="line"
-                insight="PM10 (coarse dust) and PM2.5 (fine particles) move differently when wind, traffic, or fires shift. A rising PM2.5 line is the clearest signal of health risk."
-                autoInsight
-                data={data}
-              />
+              {(!loading && !error && airQuality.length === 0) ? (
+                <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-center text-slate-800">
+                  <p className="text-lg font-semibold">Verified data is not available for this country yet.</p>
+                  <p className="mt-2 text-sm text-slate-600">Air quality data is currently unavailable for the selected location.</p>
+                </div>
+              ) : (
+                <ChartCard
+                  title="PM10 and PM2.5 trends"
+                  chartKind="line"
+                  insight="PM10 (coarse dust) and PM2.5 (fine particles) move differently when wind, traffic, or fires shift. A rising PM2.5 line is the clearest signal of health risk."
+                  autoInsight
+                  data={data}
+                />
+              )}
             </div>
           </SectionReveal>
         </section>
