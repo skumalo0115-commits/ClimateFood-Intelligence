@@ -494,7 +494,7 @@ export function ChartCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-6 top-6 z-20 max-w-xs rounded-2xl border border-emerald-100 bg-white/95 p-4 shadow-[0_20px_50px_rgba(15,23,42,0.2)]"
+            className="absolute right-6 top-6 z-20 max-h-[20rem] w-[min(22rem,calc(100%-1.5rem))] overflow-y-auto rounded-2xl border border-emerald-100 bg-white/95 p-4 shadow-[0_20px_50px_rgba(15,23,42,0.2)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start gap-3">
@@ -503,9 +503,9 @@ export function ChartCard({
                 alt="ClimateFood Intelligence"
                 className="h-9 w-9 flex-shrink-0 rounded-2xl shadow-sm"
               />
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500">Need Help Reading This?</p>
-                <p className="mt-2 text-sm text-slate-700">{generatedInsight}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{generatedInsight}</p>
               </div>
               <button
                 type="button"

@@ -2,6 +2,8 @@
 
 import CountryBadge from '@/components/CountryBadge';
 import SectionReveal from '@/components/SectionReveal';
+import { getCountryPreset, getSupportedCountryPresets } from '@/lib/countryPresets';
+import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 
 interface Props {
   eyebrow: string;
@@ -17,6 +19,25 @@ export default function PageHeader({ eyebrow, title, subtitle, backgroundImage, 
   const eyebrowClass = isLight ? 'text-emerald-200' : 'text-emerald-600';
   const titleClass = isLight ? 'text-white' : 'text-slate-900';
   const subtitleClass = isLight ? 'text-white/80' : 'text-slate-600';
+  const { config, updateConfig } = useRuntimeConfig();
+  const countryOptions = getSupportedCountryPresets();
+  const currentCountry = country ?? config.country ?? 'South Africa';
+
+  const handleCountryChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const countryName = event.target.value;
+    const preset = getCountryPreset(countryName, config);
+    if (!preset) return;
+    const nextCountries = Array.from(new Set([...(config.co2_countries ?? []), preset.country].filter(Boolean)));
+    await updateConfig({
+      country: preset.country,
+      country_code: preset.country_code,
+      lat: preset.lat,
+      lon: preset.lon,
+      aq_radius: preset.aq_radius,
+      crops_country: preset.crops_country,
+      co2_countries: nextCountries
+    });
+  };
 
   return (
     <SectionReveal from="up">
@@ -30,6 +51,22 @@ export default function PageHeader({ eyebrow, title, subtitle, backgroundImage, 
               <h1 className={`text-4xl font-semibold md:text-5xl ${titleClass}`}>{title}</h1>
               {country ? <CountryBadge country={country} tone={isLight ? 'dark' : 'light'} /> : null}
             </div>
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <label className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] ${isLight ? 'text-emerald-100' : 'text-slate-500'}`}>
+                <span>Pinpointed location</span>
+                <select
+                  value={currentCountry}
+                  onChange={handleCountryChange}
+                  className={`rounded-xl border px-3 py-2 text-sm font-medium normal-case tracking-normal ${isLight ? 'border-white/20 bg-slate-950/20 text-white' : 'border-slate-200 bg-white text-slate-800'}`}
+                >
+                  {countryOptions.map((option) => (
+                    <option key={option.country} value={option.country}>
+                      {option.country}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             <p className={`max-w-2xl text-lg ${subtitleClass}`}>{subtitle}</p>
           </div>
         </div>
@@ -39,6 +76,22 @@ export default function PageHeader({ eyebrow, title, subtitle, backgroundImage, 
           <div className="flex flex-wrap items-center gap-3">
             <h1 className={`text-4xl font-semibold md:text-5xl ${titleClass}`}>{title}</h1>
             {country ? <CountryBadge country={country} tone={isLight ? 'dark' : 'light'} /> : null}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <label className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] ${isLight ? 'text-emerald-100' : 'text-slate-500'}`}>
+              <span>Pinpointed location</span>
+              <select
+                value={currentCountry}
+                onChange={handleCountryChange}
+                className={`rounded-xl border px-3 py-2 text-sm font-medium normal-case tracking-normal ${isLight ? 'border-white/20 bg-slate-950/20 text-white' : 'border-slate-200 bg-white text-slate-800'}`}
+              >
+                {countryOptions.map((option) => (
+                  <option key={option.country} value={option.country}>
+                    {option.country}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           <p className={`max-w-2xl text-lg ${subtitleClass}`}>{subtitle}</p>
         </div>

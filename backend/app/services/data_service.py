@@ -671,33 +671,67 @@ def load_crop_data():
 
     config = get_runtime_config()
     indicator = str(config.get('crops_indicator', CROPS_INDICATOR))
-    country = str(config.get('crops_country', CROPS_COUNTRY))
+    country = str(config.get('crops_country', CROPS_COUNTRY)).strip()
+    country_name = str(config.get('country', '')).strip()
     override_url = os.getenv('CROPS_JSON_URL')
-    crops_url = override_url or (
-        f'https://api.worldbank.org/v2/country/{country}/indicator/{indicator}?format=json&per_page=20000'
-    )
 
-    payload = _safe_get_json(crops_url)
-    if isinstance(payload, list) and len(payload) > 1:
+    candidates: list[str] = []
+    if override_url:
+        candidates.append(override_url)
+
+    country_code = country.upper()
+    if country_code:
+        candidates.append(f'https://api.worldbank.org/v2/country/{country_code}/indicator/{indicator}?format=json&per_page=20000')
+    if country and country != country_code:
+        candidates.append(f'https://api.worldbank.org/v2/country/{country}/indicator/{indicator}?format=json&per_page=20000')
+    candidates.append(f'https://api.worldbank.org/v2/country/all/indicator/{indicator}?format=json&per_page=20000')
+
+    seen: set[str] = set()
+    for crops_url in candidates:
+        if not crops_url or crops_url in seen:
+            continue
+        seen.add(crops_url)
+        payload = _safe_get_json(crops_url)
+        if not isinstance(payload, list) or len(payload) <= 1:
+            continue
+
         rows = payload[1] or []
         data: list[dict[str, object]] = []
         for row in rows:
             value = row.get('value')
             year = row.get('date')
-            country_name = (row.get('country') or {}).get('value')
+            country_data = row.get('country') or {}
+            country_name_from_row = country_data.get('value') if isinstance(country_data, dict) else None
             indicator_name = (row.get('indicator') or {}).get('value')
-            if value is None or year is None or country_name is None:
+            if value is None or year is None:
                 continue
             try:
                 year_value = int(year)
             except (TypeError, ValueError):
                 continue
-            item_label = f'{country_name} - {indicator_name}' if indicator_name else country_name
-            data.append({'year': year_value, 'item': item_label, 'value': float(value)})
+
+            item_label = f'{country_name_from_row} - {indicator_name}' if indicator_name else (country_name_from_row or 'World Bank')
+            row_data = {
+                'year': year_value,
+                'item': item_label,
+                'value': float(value),
+                'country': str(country_name_from_row or '').strip(),
+                'indicator': str(indicator_name or '').strip(),
+            }
+            if country_name and country_name_from_row and str(country_name_from_row).strip().lower() == country_name.lower():
+                data.append(row_data)
+            elif not country_name and country_name_from_row:
+                data.append(row_data)
+            elif country and country_name_from_row and str(country_name_from_row).strip().lower() in {country.lower(), country_code.lower()}:
+                data.append(row_data)
+            elif country and not country_name_from_row and 'world bank' in item_label.lower():
+                data.append(row_data)
+
         if data:
-            data = sorted(data, key=lambda item: item['year'])[-500:]
-            _cache_set('crops', data)
-            return data
+            ordered = sorted(data, key=lambda item: item['year'])
+            if ordered:
+                _cache_set('crops', ordered[-500:])
+                return ordered[-500:]
 
     data = _load_local_crop_fallback(config, indicator)
     _cache_set('crops', data)
@@ -715,26 +749,64 @@ def load_co2_data():
     payload = _safe_get_json(CO2_JSON_URL)
     if isinstance(payload, dict):
         data: list[dict[str, object]] = []
-        index = {name.lower(): name for name in payload.keys()}
+        normalized = {
+            str(key).strip().lower(): str(key).strip()
+            for key in payload.keys()
+        }
         for country in countries:
-            key = index.get(country.lower())
-            if not key:
+            country_key = normalized.get(country.strip().lower())
+            if country_key is None:
                 continue
-            entries = (payload.get(key) or {}).get('data', [])
+            entries = (payload.get(country_key) or {}).get('data', [])
             for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
                 value = entry.get('co2_per_capita')
+                if value is None:
+                    value = entry.get('co2')
+                if value is None:
+                    value = entry.get('co2_per_capita_tons')
                 year = entry.get('year')
                 if value is None or year is None:
                     continue
                 data.append(
                     {
-                        'country': key,
+                        'country': country_key,
                         'year': int(year),
                         'co_emissions_per_capita': float(value),
                     }
                 )
         if data:
             data = sorted(data, key=lambda item: (item['country'], item['year']))
+            _cache_set('co2', data)
+            return data
+
+    if isinstance(payload, list):
+        data = []
+        for row in payload:
+            if not isinstance(row, dict):
+                continue
+            country_name = row.get('country') or row.get('country_name')
+            if country_name is None:
+                continue
+            entries = row.get('data') or row.get('values') or []
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                value = entry.get('co2_per_capita')
+                if value is None:
+                    value = entry.get('co2')
+                year = entry.get('year')
+                if value is None or year is None:
+                    continue
+                data.append(
+                    {
+                        'country': str(country_name),
+                        'year': int(year),
+                        'co_emissions_per_capita': float(value),
+                    }
+                )
+        if data:
             _cache_set('co2', data)
             return data
 

@@ -1,24 +1,52 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-from app.services.data_service import load_crop_data
+from app.services.data_service import get_runtime_config, load_crop_data
 
 
-def _prepare_country_crop_series():
+def _normalize_country_name(value: object) -> str:
+    return str(value or '').strip().lower()
+
+
+def _country_matches(row: dict, country_names: list[str]) -> bool:
+    item_label = str(row.get('item') or row.get('country') or '').lower()
+    if not item_label:
+        return False
+    return any(name in item_label for name in country_names if name)
+
+
+def _prepare_country_crop_series(country_filter: str | None = None):
     grouped: dict[int, list[float]] = {}
+    country_names: list[str] = []
+    if country_filter:
+        country_names = [country_filter.strip().lower(), country_filter.strip().upper()]
+
     for row in load_crop_data():
         try:
             year = int(row.get('year'))
             value = float(row.get('value'))
         except (TypeError, ValueError):
             continue
+
+        if country_names and not _country_matches(row, country_names):
+            continue
+
         grouped.setdefault(year, []).append(value)
 
-    return sorted((year, float(np.mean(values))) for year, values in grouped.items() if values)
+    series = sorted((year, float(np.mean(values))) for year, values in grouped.items() if values)
+    if country_filter and len(series) >= 3:
+        return series
+    if country_filter and len(series) < 3:
+        return _prepare_country_crop_series(None)
+    return series
 
 
-def predict_crop_yield():
-    series = _prepare_country_crop_series()
+def predict_crop_yield(country_filter: str | None = None):
+    if country_filter is None:
+        config = get_runtime_config()
+        country_filter = str(config.get('country') or config.get('crops_country') or '').strip() or None
+
+    series = _prepare_country_crop_series(country_filter)
     if len(series) < 3:
         return []
 

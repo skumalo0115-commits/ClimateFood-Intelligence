@@ -4,7 +4,10 @@ import L from 'leaflet';
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { motion, useInView } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { getCountryPreset, getSupportedCountryPresets } from '@/lib/countryPresets';
+import { useDashboardData } from '@/lib/useDashboardData';
+import { useRuntimeConfig } from '@/lib/useRuntimeConfig';
 import type { RuntimeConfig } from '@/lib/runtimeConfigShared';
 
 interface Props {
@@ -73,15 +76,59 @@ function MobileDoubleTapGesture() {
   return null;
 }
 
+function getRecommendedCrop(country: string, climate: { temperature: number; precipitation: number }[], crops: { value: number }[]) {
+  const recentClimate = climate.slice(-10);
+  const avgTemp = recentClimate.length
+    ? recentClimate.reduce((sum, item) => sum + item.temperature, 0) / recentClimate.length
+    : 22;
+  const avgRain = recentClimate.length
+    ? recentClimate.reduce((sum, item) => sum + item.precipitation, 0) / recentClimate.length
+    : 500;
+
+  const recentYield = crops.slice(-5);
+  const yieldAvg = recentYield.length
+    ? recentYield.reduce((sum, item) => sum + item.value, 0) / recentYield.length
+    : 0;
+
+  if (country.toLowerCase().includes('india') || (avgTemp > 27 && avgRain > 700)) return { crop: 'Rice', reason: 'Warm temperatures and strong rainfall support paddy crop cycles.' };
+  if (country.toLowerCase().includes('germany') || (avgTemp > 18 && avgRain > 500)) return { crop: 'Wheat', reason: 'Temperate conditions and moderate rainfall suit wheat well.' };
+  if (country.toLowerCase().includes('brazil') || (avgTemp > 24 && avgRain > 600)) return { crop: 'Maize', reason: 'A warm, humid pattern is favourable for maize growth.' };
+  if (avgTemp > 22 && avgRain > 350) return { crop: 'Maize', reason: 'The recent climate pattern suggests strong maize suitability.' };
+  if (yieldAvg > 2000) return { crop: 'Sorghum', reason: 'The current yield profile is strong enough to justify resilient cereal rotation.' };
+  return { crop: 'Cabbage', reason: 'This area is more stable for a shorter-cycle, high-water-output crop.' };
+}
+
 export default function MapPanel({ config }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { amount: 0.35 });
+  const { updateConfig } = useRuntimeConfig();
+  const { climate, crops } = useDashboardData();
 
   const lat = config?.lat ?? -26.2041;
   const lon = config?.lon ?? 28.0473;
-  const label = config?.country ? `Focus area: ${config.country}` : 'Focus area: South Africa';
+  const countryOptions = useMemo(() => getSupportedCountryPresets(), []);
+  const selectedCountry = config?.country ?? 'South Africa';
+  const recommendation = useMemo(
+    () => getRecommendedCrop(selectedCountry, climate, crops),
+    [climate, crops, selectedCountry]
+  );
 
-  const points = [{ lat, lng: lon, label }];
+  const handleCountryChange = async (countryName: string) => {
+    const preset = getCountryPreset(countryName, config);
+    if (!preset) return;
+    const nextCountries = Array.from(new Set([...(config.co2_countries ?? []), preset.country].filter(Boolean)));
+    await updateConfig({
+      country: preset.country,
+      country_code: preset.country_code,
+      lat: preset.lat,
+      lon: preset.lon,
+      aq_radius: preset.aq_radius,
+      crops_country: preset.crops_country,
+      co2_countries: nextCountries
+    });
+  };
+
+  const points = [{ lat, lng: lon, label: `Focus area: ${selectedCountry}` }];
 
   return (
     <div
@@ -97,9 +144,32 @@ export default function MapPanel({ config }: Props) {
       <div className="relative z-10 flex flex-wrap items-start justify-between gap-4 px-6 pb-0 pt-6">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">Live Focus Map</h3>
-          <p className="mt-1 text-sm text-slate-600">The map pin marks the active country focus used for climate and air quality lookups.</p>
+          <p className="mt-1 text-sm text-slate-600">Pinpoint the exact area and review the best crop match before planting.</p>
         </div>
+        <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+          Pinpointed location
+          <select
+            value={selectedCountry}
+            onChange={(event) => handleCountryChange(event.target.value)}
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-slate-800"
+          >
+            {countryOptions.map((country) => (
+              <option key={country.country} value={country.country}>
+                {country.country}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
+
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-6 py-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Good crop to plant</p>
+          <p className="mt-1 text-xl font-semibold text-slate-900">{recommendation.crop}</p>
+        </div>
+        <p className="max-w-md text-sm text-slate-600">{recommendation.reason}</p>
+      </div>
+
       <div className="pointer-events-none absolute right-4 top-4 z-20 rounded-full border border-slate-200 bg-white/90 p-2 shadow-sm">
         <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
           <circle cx="14" cy="14" r="12.5" fill="none" stroke="#0f172a" strokeOpacity="0.2" />
@@ -122,7 +192,7 @@ export default function MapPanel({ config }: Props) {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {points.map((p) => (
           <CircleMarker center={[p.lat, p.lng]} radius={10} pathOptions={{ color: '#10b981', fillColor: '#10b981' }} key={p.label}>
-            <Popup>{p.label}</Popup>
+            <Popup>{`${p.label} • Best crop: ${recommendation.crop}`}</Popup>
           </CircleMarker>
         ))}
       </MapContainer>
